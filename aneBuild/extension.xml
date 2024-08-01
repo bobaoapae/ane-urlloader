@@ -1,0 +1,17 @@
+<extension xmlns="http://ns.adobe.com/air/extension/51.0">
+    <id>br.com.redesurftank.aneurlloader</id>
+    <versionNumber>1</versionNumber>
+    <platforms>
+        <platform name="Windows-x86">
+            <applicationDeployment>
+                <nativeLibrary>windowsNative.dll</nativeLibrary>
+                <initializer>InitExtension</initializer>
+                <finalizer>DestroyExtension</finalizer>
+            </applicationDeployment>
+        </platform>
+        <platform name="default">
+            <applicationDeployment />
+        </platform>
+    </platforms>
+</extension>
+  
