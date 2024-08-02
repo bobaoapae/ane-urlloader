@@ -1,5 +1,6 @@
 #include <log.h>
 #include <map>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -17,6 +18,7 @@ typedef __int32 int32_t;
 
 static FREContext g_ctx = nullptr;
 static std::map<std::string, std::vector<uint8_t> > g_results = {};
+static std::mutex g_results_mutex;
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call) {
@@ -32,7 +34,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-void SucessCallback(const char *id,  uint8_t *result, int32_t length) {
+void SucessCallback(const char *id, uint8_t *result, int32_t length) {
     writeLog("Calling SucessCallback");
     std::string id_str(id);
 
@@ -45,7 +47,10 @@ void SucessCallback(const char *id,  uint8_t *result, int32_t length) {
     std::string concatenated = id_str + ";";
 
     writeLog("Storing result");
-    g_results.insert(std::pair(id_str, std::vector(result, result + length)));
+    writeLog("Storing result"); {
+        std::lock_guard lock(g_results_mutex);
+        g_results.insert(std::pair(id_str, std::vector(result, result + length)));
+    }
     writeLog("Result stored");
 
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *) "success", (const uint8_t *) concatenated.c_str());
@@ -70,6 +75,12 @@ void ProgressCallback(const char *id, const char *message) {
     std::string concatenated = id_str + ";" + message_str;
 
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *) "progress", (const uint8_t *) concatenated.c_str());
+}
+
+void WriteLogCallback(const char *message) {
+    std::string msg = "C#: ";
+    msg += message;
+    writeLog(msg.c_str());
 }
 
 FREObject expose_loadUrl(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
@@ -106,6 +117,11 @@ FREObject expose_loadUrl(FREContext ctx, void *functionData, uint32_t argc, FREO
 
     char *result = startLoader((const char *) url, (const char *) method, (const char *) variable, (const char *) headers);
 
+    if (!result) {
+        writeLog("startLoader returned null");
+        return nullptr;
+    }
+
     writeLog("Result: ");
     writeLog(result);
 
@@ -125,13 +141,16 @@ FREObject expose_getResult(FREContext ctx, void *functionData, uint32_t argc, FR
     FREGetObjectAsUTF8(argv[0], &uuidLength, &uuid);
     std::string uuidStr(reinterpret_cast<const char *>(uuid), uuidLength);
 
-    auto it = g_results.find(uuidStr);
-
-    auto result = it != g_results.end() ? it->second : std::vector<uint8_t>();
+    std::vector<uint8_t> result; {
+        std::lock_guard lock(g_results_mutex);
+        auto it = g_results.find(uuidStr);
+        if (it != g_results.end()) {
+            result = it->second;
+            g_results.erase(it);
+        }
+    }
 
     writeLog("Filling AS3 ByteArray");
-    writeLog("Message size: ");
-    writeLog(std::to_string(result.size()).c_str());
 
     FREObject byteArrayObject = nullptr;
     if (!result.empty()) {
@@ -144,13 +163,13 @@ FREObject expose_getResult(FREContext ctx, void *functionData, uint32_t argc, FR
         writeLog("AS3 ByteArray created");
     }
 
-
+    result.clear();
     return byteArrayObject;
 }
 
 FREObject expose_initialize(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
     writeLog("Calling expose_initialize");
-    auto result = initializerLoader(&SucessCallback, &ErrorCallback, &ProgressCallback);
+    auto result = initializerLoader(&SucessCallback, &ErrorCallback, &ProgressCallback, &WriteLogCallback);
     writeLog("InitializerLoader Result: ");
     writeLog(std::to_string(result).c_str());
 

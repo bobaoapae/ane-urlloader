@@ -57,7 +57,7 @@ public static class HappyEyeballsHttp
         var client = new HttpClient(handler)
         {
             DefaultRequestVersion = HttpVersion.Version20,
-            DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
+            DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower
         };
 
         client.DefaultRequestHeaders.UserAgent.TryParseAdd(CustomAgent);

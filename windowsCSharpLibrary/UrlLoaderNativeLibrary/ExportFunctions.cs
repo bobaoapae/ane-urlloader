@@ -1,70 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace UrlLoaderNativeLibrary;
 
 public static unsafe class ExportFunctions
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void FunctionPointer(IntPtr pointer1, IntPtr pointer2);
+    private delegate void CallBackSuccessPointer(IntPtr pointerId, IntPtr pointerArray, int length);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    private delegate void FunctionPointer2(IntPtr pointer1, IntPtr pointer2, int length);
+    private delegate void CallBackErrorPointer(IntPtr pointerId, IntPtr pointerMessage);
 
-    private static FunctionPointer2 _fp1;
-    private static FunctionPointer _fp2;
-    private static FunctionPointer _fp3;
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void CallBackProgressPointer(IntPtr pointerId, IntPtr pointerMessage);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void CallBackLogPointer(IntPtr pointerMessage);
+
+    private static CallBackSuccessPointer _callbackSuccess;
+    private static CallBackErrorPointer _callbackError;
+    private static CallBackProgressPointer _callbackProgress;
+    private static CallBackLogPointer _callbackLog;
 
     [UnmanagedCallersOnly(EntryPoint = "initializerLoader")]
-    public static int InitializerLoader(IntPtr fp1Ptr, IntPtr fp2Ptr, IntPtr fp3Ptr)
+    public static int InitializerLoader(IntPtr pointerCallBackSuccess, IntPtr pointerCallBackError, IntPtr pointerCallBackProgress, IntPtr pointerCallBackLog)
     {
         var result = -1;
         try
         {
-            _fp1 = Marshal.GetDelegateForFunctionPointer<FunctionPointer2>(fp1Ptr);
-            _fp2 = Marshal.GetDelegateForFunctionPointer<FunctionPointer>(fp2Ptr);
-            _fp3 = Marshal.GetDelegateForFunctionPointer<FunctionPointer>(fp3Ptr);
+            _callbackSuccess = Marshal.GetDelegateForFunctionPointer<CallBackSuccessPointer>(pointerCallBackSuccess);
+            _callbackError = Marshal.GetDelegateForFunctionPointer<CallBackErrorPointer>(pointerCallBackError);
+            _callbackProgress = Marshal.GetDelegateForFunctionPointer<CallBackProgressPointer>(pointerCallBackProgress);
+            _callbackLog = Marshal.GetDelegateForFunctionPointer<CallBackLogPointer>(pointerCallBackLog);
 
-            // Converter FunctionPointer para Action<string, string>
-            Action<string, byte[]> action1 = (str1, str2) =>
+            void WrapperSuccess(string loaderId, byte[] dataLoaded)
             {
-                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(str1);
-                IntPtr ptr2 = Marshal.AllocCoTaskMem(str2.Length);
-                Marshal.Copy(str2, 0, ptr2, str2.Length);
+                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(loaderId);
+                IntPtr ptr2 = Marshal.AllocCoTaskMem(dataLoaded.Length);
+                Marshal.Copy(dataLoaded, 0, ptr2, dataLoaded.Length);
 
-                _fp1(ptr1, ptr2, str2.Length);
+                _callbackSuccess(ptr1, ptr2, dataLoaded.Length);
 
                 Marshal.FreeCoTaskMem(ptr1);
                 Marshal.FreeCoTaskMem(ptr2);
-            };
+            }
 
-            Action<string, string> action2 = (str1, str2) =>
+            void WrapperError(string loaderId, string error)
             {
-                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(str1);
-                IntPtr ptr2 = Marshal.StringToCoTaskMemAnsi(str2);
+                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(loaderId);
+                IntPtr ptr2 = Marshal.StringToCoTaskMemAnsi(error);
 
-                _fp2(ptr1, ptr2);
+                _callbackError(ptr1, ptr2);
 
                 Marshal.FreeCoTaskMem(ptr1);
                 Marshal.FreeCoTaskMem(ptr2);
-            };
+            }
 
-            Action<string, string> action3 = (str1, str2) =>
+            void WrapperProgress(string loaderId, string progress)
             {
-                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(str1);
-                IntPtr ptr2 = Marshal.StringToCoTaskMemAnsi(str2);
+                IntPtr ptr1 = Marshal.StringToCoTaskMemAnsi(loaderId);
+                IntPtr ptr2 = Marshal.StringToCoTaskMemAnsi(progress);
 
-                _fp3(ptr1, ptr2);
+                _callbackProgress(ptr1, ptr2);
 
                 Marshal.FreeCoTaskMem(ptr1);
                 Marshal.FreeCoTaskMem(ptr2);
-            };
+            }
 
-            LoaderManager.Instance.Initialize(action1, action2, action3);
+            void WrapperLog(string message)
+            {
+                IntPtr ptr = Marshal.StringToCoTaskMemAnsi(message);
+                _callbackLog(ptr);
+                Marshal.FreeCoTaskMem(ptr);
+            }
+
+            LoaderManager.Instance.Initialize(WrapperSuccess, WrapperError, WrapperProgress, WrapperLog);
             result = 1;
         }
         catch
@@ -78,22 +90,23 @@ public static unsafe class ExportFunctions
     [UnmanagedCallersOnly(EntryPoint = "startLoad")]
     public static IntPtr StartLoad(IntPtr urlPtr, IntPtr methodPtr, IntPtr variablesPtr, IntPtr headersPtr)
     {
-        var url = Marshal.PtrToStringAnsi(urlPtr);
-        var method = Marshal.PtrToStringAnsi(methodPtr);
-        var variables = Marshal.PtrToStringAnsi(variablesPtr);
-        var headers = Marshal.PtrToStringAnsi(headersPtr);
+        try
+        {
+            var url = Marshal.PtrToStringAnsi(urlPtr);
+            var method = Marshal.PtrToStringAnsi(methodPtr);
+            var variables = Marshal.PtrToStringAnsi(variablesPtr);
+            var headers = Marshal.PtrToStringAnsi(headersPtr);
 
-        var variablesDictionary = string.IsNullOrEmpty(variables) ? new Dictionary<string, string>() : JsonSerializer.Deserialize(variables, JsonDictionaryHeaderContext.Default.DictionaryStringString);
-        var headersDictionary = string.IsNullOrEmpty(headers) ? new Dictionary<string, string>() : JsonSerializer.Deserialize(headers, JsonDictionaryHeaderContext.Default.DictionaryStringString);
+            var variablesDictionary = string.IsNullOrEmpty(variables) ? new Dictionary<string, string>() : JsonSerializer.Deserialize(variables, JsonDictionaryHeaderContext.Default.DictionaryStringString);
+            var headersDictionary = string.IsNullOrEmpty(headers) ? new Dictionary<string, string>() : JsonSerializer.Deserialize(headers, JsonDictionaryHeaderContext.Default.DictionaryStringString);
 
-        var randomId = LoaderManager.Instance.StartLoad(url, method, variablesDictionary, headersDictionary);
-        return Marshal.StringToCoTaskMemAnsi(randomId);
-    }
-
-    [UnmanagedCallersOnly(EntryPoint = "freeResult")]
-    public static void FreeResult(IntPtr resultPtr)
-    {
-        Marshal.FreeCoTaskMem(resultPtr);
+            var randomId = LoaderManager.Instance.StartLoad(url, method, variablesDictionary, headersDictionary);
+            return Marshal.StringToCoTaskMemAnsi(randomId);
+        }
+        catch
+        {
+            return IntPtr.Zero;
+        }
     }
 
     //free id return from startLoad

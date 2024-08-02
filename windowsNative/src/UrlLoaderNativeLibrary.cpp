@@ -95,9 +95,9 @@ void *getFunctionPointer(const char *functionName) {
     return func;
 }
 
-int initializerLoader(void *callBackSuccess, void *callBackError, void *callBackProgress) {
+int initializerLoader(void *callBackSuccess, void *callBackError, void *callBackProgress, void *callBackLog) {
     writeLog("Calling initializerLoader");
-    typedef int (*myFunc)(void *, void *, void *);
+    typedef int (*myFunc)(void *, void *, void *, void *);
     auto func = (myFunc) getFunctionPointer("initializerLoader");
     if (!func) {
         writeLog("Could not load function initializerLoader");
@@ -105,7 +105,7 @@ int initializerLoader(void *callBackSuccess, void *callBackError, void *callBack
     }
 
     writeLog("InitializerLoader called");
-    auto result = func(callBackSuccess, callBackError, callBackProgress);
+    auto result = func(callBackSuccess, callBackError, callBackProgress, callBackLog);
     std::string resultMsg = "InitializerLoader Result: " + std::to_string(result);
     writeLog(resultMsg.c_str());
     return result;
@@ -122,19 +122,15 @@ char *startLoader(const char *url, const char *method, const char *variables, co
 
     writeLog("startLoader called");
     auto result = func(url, method, variables, headers);
+
+    if (!result) {
+        writeLog("startLoader returned null");
+        return nullptr;
+    }
+
     std::string resultMsg = "startLoader Result: " + std::string(result);
     writeLog(resultMsg.c_str());
     return result;
-}
-
-void freeResult(uint8_t *result) {
-    typedef void (*myFunc)(uint8_t *);
-    auto func = (myFunc) getFunctionPointer("freeResult");
-    if (!func) {
-        return;
-    }
-
-    func(result);
 }
 
 void freeId(const char *id) {

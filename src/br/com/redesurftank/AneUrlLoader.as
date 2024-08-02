@@ -52,6 +52,9 @@ public class AneUrlLoader {
         var variablesJson:String = variables ? JSON.stringify(variables) : "";
         var headersJson:String = headers ? JSON.stringify(headers) : "";
         var loaderId:String = _extContext.call("loadUrl", url, method, variablesJson, headersJson) as String;
+        if (!loaderId) {
+            throw new Error("Error loading URL");
+        }
         _loaders[loaderId] = {onResult: onResult, onError: onError, onProgress: onProgress};
     }
 
@@ -79,8 +82,14 @@ public class AneUrlLoader {
             case "success": {
                 if (loader.onResult) {
                     var result:ByteArray = _extContext.call("getResult", loaderId) as ByteArray;
-                    result.position = 0;
-                    loader.onResult(result);
+                    if (!result) {
+                        if (loader.onError) {
+                            loader.onError(new Error("Error getting result"));
+                        }
+                    } else {
+                        result.position = 0;
+                        loader.onResult(result);
+                    }
                 }
                 delete _loaders[loaderId];
                 break;

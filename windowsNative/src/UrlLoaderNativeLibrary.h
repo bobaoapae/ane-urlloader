@@ -13,9 +13,8 @@
 
 void *loadNativeLibrary();
 void *getFunctionPointer(const char *functionName);
-int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress);
+int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
 char *startLoader(const char *url, const char *method, const char *variables,  const char *headers);
-void freeResult(uint8_t *result);
 void freeId(const char *id);
 
 
