@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,9 @@ namespace UrlLoaderNativeLibrary;
 public static class HappyEyeballsHttp
 {
     private const int ConnectionAttemptDelay = 250;
+    private static readonly string SystemArch = Environment.Is64BitProcess ? "64" : "32";
+
+    private static readonly string CustomAgent = $"Mozilla/5.0 (Windows NT 6.1{SystemArch}; Win; x{SystemArch};) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36 NativeLoader/1.0";
 
 #if DEBUG
 
@@ -45,11 +49,19 @@ public static class HappyEyeballsHttp
         {
             ConnectCallback = OnConnect,
             AutomaticDecompression = DecompressionMethods.All,
-            AllowAutoRedirect = autoRedirect,
-            // PooledConnectionLifetime = TimeSpan.FromSeconds(1)
+            AllowAutoRedirect = autoRedirect
         };
 
-        return new HttpClient(handler);
+
+        var client = new HttpClient(handler)
+        {
+            DefaultRequestVersion = HttpVersion.Version20,
+            DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher
+        };
+
+        client.DefaultRequestHeaders.UserAgent.TryParseAdd(CustomAgent);
+
+        return client;
     }
 
     private static async ValueTask<Stream> OnConnect(

@@ -18,7 +18,6 @@ std::string GetLibraryLocation(int argc, char *argv[]) {
             baseDirectory = argv[i + 1];
             // Anexar br.com.redesurftank.androidwebsocket.ane ao diretório base
             baseDirectory += R"(\br.com.redesurftank.aneurlloader.ane)";
-            break;
         }
     }
 
@@ -32,6 +31,7 @@ std::string GetLibraryLocation(int argc, char *argv[]) {
         }
         std::string fullPath(buffer, length);
         baseDirectory = fullPath.substr(0, fullPath.find_last_of("\\/"));
+        baseDirectory += R"(\META-INF\AIR\extensions\br.com.redesurftank.aneurlloader)";
     }
 
     return baseDirectory + R"(\META-INF\ANE\Windows-x86\UrlLoaderNativeLibrary.dll)";
