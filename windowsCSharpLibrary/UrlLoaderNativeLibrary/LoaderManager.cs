@@ -35,7 +35,7 @@ public class LoaderManager
         _ = Task.Run(async () =>
         {
             var request = new HttpRequestMessage(new HttpMethod(method.ToUpper()), url);
-            request.Version = HttpVersion.Version11;
+            request.Version = HttpVersion.Version20;
             request.VersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
             foreach (var (key, value) in headers)
             {

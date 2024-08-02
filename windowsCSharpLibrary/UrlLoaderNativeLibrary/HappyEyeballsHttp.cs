@@ -49,7 +49,8 @@ public static class HappyEyeballsHttp
         {
             ConnectCallback = OnConnect,
             AutomaticDecompression = DecompressionMethods.All,
-            AllowAutoRedirect = autoRedirect
+            AllowAutoRedirect = autoRedirect,
+            EnableMultipleHttp2Connections = true,
         };
 
 
