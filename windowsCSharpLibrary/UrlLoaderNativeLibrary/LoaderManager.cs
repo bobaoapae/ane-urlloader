@@ -83,6 +83,18 @@ public class LoaderManager
                             // ignored
                         }
 
+                        if (e.InnerException != null)
+                        {
+                            try
+                            {
+                                _writeLog(e.InnerException.Message);
+                            }
+                            catch (Exception)
+                            {
+                                // ignored
+                            }
+                        }
+
                         try
                         {
                             _error(randomId.ToString(), e.Message);

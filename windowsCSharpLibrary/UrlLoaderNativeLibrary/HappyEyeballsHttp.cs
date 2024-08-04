@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,14 +46,20 @@ public static class HappyEyeballsHttp
     //   or incremental DNS updates who cares about that.
     public static HttpClient CreateHttpClient(bool autoRedirect = true)
     {
+        var sslOptions = new SslClientAuthenticationOptions
+        {
+            // Leave certs unvalidated for debugging
+            RemoteCertificateValidationCallback = delegate { return true; },
+        };
+        
         var handler = new SocketsHttpHandler
         {
             ConnectCallback = OnConnect,
             AutomaticDecompression = DecompressionMethods.All,
             AllowAutoRedirect = autoRedirect,
             EnableMultipleHttp2Connections = true,
+            SslOptions = sslOptions
         };
-
 
         var client = new HttpClient(handler)
         {
