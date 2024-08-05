@@ -65,6 +65,42 @@ public class LoaderManager
             try
             {
                 var response = await _client.SendAsync(request);
+                if (response.StatusCode >= HttpStatusCode.BadRequest)
+                {
+                    _ = Task.Run(() =>
+                    {
+                        try
+                        {
+                            _error(randomId.ToString(), $"Invalid status code: {response.StatusCode}");
+                        }
+                        catch (Exception e)
+                        {
+                            try
+                            {
+                                _writeLog(e.Message);
+                            }
+                            catch (Exception)
+                            {
+                                // ignored
+                            }
+
+                            if (e.InnerException != null)
+                            {
+                                try
+                                {
+                                    _writeLog(e.InnerException.Message);
+                                }
+                                catch (Exception)
+                                {
+                                    // ignored
+                                }
+                            }
+                        }
+                    });
+
+                    return;
+                }
+
                 var result = await response.Content.ReadAsByteArrayAsync();
                 _ = Task.Run(() =>
                 {
