@@ -4,7 +4,7 @@
     <configurations>
       <configuration name="AneUrlLoader" target-platform="Desktop" pure-as="true" output-type="Library" output-file="AneUrlLoader.swc" output-folder="$MODULE_DIR$/out/production/AneUrlLoader">
         <dependencies target-player="32.0">
-          <sdk name="AIRSDK_51.0.1.3" />
+          <sdk name="AIRSDK_51.0.1" />
         </dependencies>
         <compiler-options />
         <packaging-air-desktop />
@@ -19,7 +19,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="AIRSDK_51.0.1.3" jdkType="Flex SDK Type (new)" />
+    <orderEntry type="jdk" jdkName="AIRSDK_51.0.1" jdkType="Flex SDK Type (new)" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

@@ -2,6 +2,7 @@ package br.com.redesurftank {
 import flash.events.StatusEvent;
 import flash.external.ExtensionContext;
 import flash.net.URLVariables;
+import flash.system.Capabilities;
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 
@@ -14,6 +15,18 @@ public class AneUrlLoader {
             _instance = new AneUrlLoader();
         }
         return _instance;
+    }
+
+    public static function get isSupported():Boolean {
+        var plataform:String = Capabilities.version.substr(0, 3);
+        switch (plataform) {
+            case "AND":
+                return true;
+            case "WIN":
+                return true;
+            default:
+                return false;
+        }
     }
 
     private var _extContext:ExtensionContext;

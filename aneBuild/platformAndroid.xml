@@ -1,0 +1,14 @@
+<platform xmlns="http://ns.adobe.com/air/extension/51.0">
+	<gradle>
+		<repositories>
+			<repository>google()</repository>
+			<repository>mavenCentral()</repository>
+		</repositories>
+		<dependencies>
+			<dependency>implementation "com.squareup.okhttp3:okhttp:5.0.0-alpha.14"</dependency>
+			<dependency>implementation "dnsjava:dnsjava:3.6.0"</dependency>
+			<dependency>implementation "androidx.appcompat:appcompat:1.7.0"</dependency>
+			<dependency>implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.0"))</dependency>
+		</dependencies>
+	</gradle>
+</platform>

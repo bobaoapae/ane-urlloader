@@ -2,6 +2,30 @@
     <id>br.com.redesurftank.aneurlloader</id>
     <versionNumber>1</versionNumber>
     <platforms>
+        <platform name="Android-ARM">
+            <applicationDeployment>
+                <nativeLibrary>classes.jar</nativeLibrary>
+                <initializer>br.com.redesurftank.aneurlloader.AndroidUrlLoaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
+        <platform name="Android-ARM64">
+            <applicationDeployment>
+                <nativeLibrary>classes.jar</nativeLibrary>
+                <initializer>br.com.redesurftank.aneurlloader.AndroidUrlLoaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
+        <platform name="Android-x86">
+            <applicationDeployment>
+                <nativeLibrary>classes.jar</nativeLibrary>
+                <initializer>br.com.redesurftank.aneurlloader.AndroidUrlLoaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
+        <platform name="Android-x64">
+            <applicationDeployment>
+                <nativeLibrary>classes.jar</nativeLibrary>
+                <initializer>br.com.redesurftank.aneurlloader.AndroidUrlLoaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
         <platform name="Windows-x86">
             <applicationDeployment>
                 <nativeLibrary>windowsNative.dll</nativeLibrary>
