@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
@@ -20,6 +19,11 @@ public static class HappyEyeballsHttp
     private static readonly string SystemArch = Environment.Is64BitProcess ? "64" : "32";
 
     private static readonly string CustomAgent = $"Mozilla/5.0 (Windows NT 6.1{SystemArch}; Win; x{SystemArch};) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36 NativeLoader/1.0";
+
+    private static readonly LookupClient DnsClient = new(new LookupClientOptions(NameServer.Cloudflare, NameServer.Cloudflare2, NameServer.GooglePublicDns, NameServer.GooglePublicDns2)
+    {
+        UseCache = true
+    });
 
 #if DEBUG
 
@@ -51,14 +55,15 @@ public static class HappyEyeballsHttp
             // Leave certs unvalidated for debugging
             RemoteCertificateValidationCallback = delegate { return true; },
         };
-        
+
         var handler = new SocketsHttpHandler
         {
             ConnectCallback = OnConnect,
             AutomaticDecompression = DecompressionMethods.All,
             AllowAutoRedirect = autoRedirect,
             EnableMultipleHttp2Connections = true,
-            SslOptions = sslOptions
+            SslOptions = sslOptions,
+            ConnectTimeout = TimeSpan.FromSeconds(5)
         };
 
         var client = new HttpClient(handler)
@@ -87,9 +92,15 @@ public static class HappyEyeballsHttp
         // I could find no other robust way to check "is there a chance in hell IPv6 works" other than "try it",
         // so... try it we will.
         var endPoint = context.DnsEndPoint;
-        var resolvedAddresses = await GetIpsForHost(endPoint, cancellationToken).ConfigureAwait(false);
+
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
+
+        var resolvedAddresses = await GetIpsForHost(endPoint, linkedCts.Token).ConfigureAwait(false);
         if (resolvedAddresses.Length == 0)
             throw new Exception($"Host {context.DnsEndPoint.Host} resolved to no IPs!");
+
+        linkedCts.Token.ThrowIfCancellationRequested();
 
         // Sort as specified in the RFC, interleaving.
         var ips = SortInterleaved(resolvedAddresses);
@@ -100,7 +111,7 @@ public static class HappyEyeballsHttp
             ips.Length,
             (i, cancel) => AttemptConnection(i, ips[i], endPoint.Port, cancel),
             TimeSpan.FromMilliseconds(ConnectionAttemptDelay),
-            cancellationToken);
+            linkedCts.Token);
 
 
         return new NetworkStream(socket, ownsSocket: true);
@@ -144,16 +155,20 @@ public static class HappyEyeballsHttp
     private static async Task<IPAddress[]> GetIpsForHost(DnsEndPoint endPoint, CancellationToken cancel)
     {
         if (IPAddress.TryParse(endPoint.Host, out var ip))
-            return new[] { ip };
+            return [ip];
 
-        var dnsClient = new LookupClient(new LookupClientOptions(NameServer.Cloudflare, NameServer.Cloudflare2, NameServer.GooglePublicDns, NameServer.GooglePublicDns2)
+        try
         {
-            UseCache = false
-        });
+            var result = await DnsClient.QueryAsync(endPoint.Host, QueryType.A, QueryClass.IN, cancel).ConfigureAwait(false);
 
-        var result = await dnsClient.GetHostEntryAsync(endPoint.Host).ConfigureAwait(false);
-        return result.AddressList;
+            return result.Answers.ARecords().Select(x => x.Address).ToArray();
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Failed to resolve {endPoint.Host}", e);
+        }
     }
+
 
     private static IPAddress[] SortInterleaved(IPAddress[] addresses)
     {

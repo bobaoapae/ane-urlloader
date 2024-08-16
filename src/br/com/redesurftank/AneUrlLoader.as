@@ -66,7 +66,10 @@ public class AneUrlLoader {
         var headersJson:String = headers ? JSON.stringify(headers) : "";
         var loaderId:String = _extContext.call("loadUrl", url, method, variablesJson, headersJson) as String;
         if (!loaderId) {
-            throw new Error("Error loading URL");
+            if (onError) {
+                onError(new Error("Error loading URL"));
+            }
+            return;
         }
         _loaders[loaderId] = {onResult: onResult, onError: onError, onProgress: onProgress};
     }

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlLoaderNativeLibrary", "UrlLoaderNativeLibrary\UrlLoaderNativeLibrary.csproj", "{C3DCFB64-3097-4DDB-BF31-A323EC31F406}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlLoaderTest", "UrlLoaderTest\UrlLoaderTest.csproj", "{5741E916-F08D-4200-98F9-AF019E2D6D05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{C3DCFB64-3097-4DDB-BF31-A323EC31F406}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3DCFB64-3097-4DDB-BF31-A323EC31F406}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3DCFB64-3097-4DDB-BF31-A323EC31F406}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5741E916-F08D-4200-98F9-AF019E2D6D05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5741E916-F08D-4200-98F9-AF019E2D6D05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5741E916-F08D-4200-98F9-AF019E2D6D05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5741E916-F08D-4200-98F9-AF019E2D6D05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

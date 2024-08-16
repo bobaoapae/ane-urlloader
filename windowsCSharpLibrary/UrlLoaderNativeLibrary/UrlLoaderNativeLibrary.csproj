@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <RuntimeIdentifier>win-x86</RuntimeIdentifier>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <RuntimeIdentifier>win-x86</RuntimeIdentifier>
         <PublishAot>true</PublishAot>
     </PropertyGroup>
 
