@@ -34,8 +34,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-void SucessCallback(const char *id, uint8_t *result, int32_t length) {
-    writeLog("Calling SucessCallback");
+void SuccessCallback(const char *id, uint8_t *result, int32_t length) {
+    writeLog("Calling SuccessCallback");
     std::string id_str(id);
 
     writeLog("ID: ");
@@ -47,7 +47,7 @@ void SucessCallback(const char *id, uint8_t *result, int32_t length) {
     std::string concatenated = id_str + ";";
 
     writeLog("Storing result");
-    writeLog("Storing result"); {
+    {
         std::lock_guard lock(g_results_mutex);
         g_results.insert(std::pair(id_str, std::vector(result, result + length)));
     }
@@ -169,7 +169,7 @@ FREObject expose_getResult(FREContext ctx, void *functionData, uint32_t argc, FR
 
 FREObject expose_initialize(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
     writeLog("Calling expose_initialize");
-    auto result = initializerLoader(&SucessCallback, &ErrorCallback, &ProgressCallback, &WriteLogCallback);
+    auto result = initializerLoader(&SuccessCallback, &ErrorCallback, &ProgressCallback, &WriteLogCallback);
     writeLog("InitializerLoader Result: ");
     writeLog(std::to_string(result).c_str());
 
