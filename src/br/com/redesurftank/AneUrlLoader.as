@@ -24,6 +24,8 @@ public class AneUrlLoader {
                 return true;
             case "WIN":
                 return true;
+            case "MAC":
+                return true;
             default:
                 return false;
         }

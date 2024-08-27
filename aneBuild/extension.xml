@@ -33,6 +33,13 @@
                 <finalizer>DestroyExtension</finalizer>
             </applicationDeployment>
         </platform>
+        <platform name="MacOS-x86-64">
+            <applicationDeployment>
+                <nativeLibrary>UrlLoaderANE.framework</nativeLibrary>
+                <initializer>InitExtension</initializer>
+                <finalizer>DestroyExtension</finalizer>
+            </applicationDeployment>
+        </platform>
         <platform name="default">
             <applicationDeployment />
         </platform>
