@@ -41,6 +41,20 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Verify the universal binary
+echo "Verifying universal binary..."
+file "$UNIVERSAL_LIB"
+
+# Fix the install name of the dylib to be relative to the main framework library's location
+echo "Fixing install name to be relative to the main framework library's location..."
+install_name_tool -id "@loader_path/Frameworks/UrlLoaderNativeLibrary.dylib" "$UNIVERSAL_LIB"
+if [ $? -ne 0 ]; then
+  echo "Failed to fix the install name"
+  exit 1
+fi
+
+echo "Install name fixed successfully."
+
 # Sign the universal binary
 echo "Signing universal binary..."
 codesign --force --sign "$SIGNING_IDENTITY" "$UNIVERSAL_LIB"
@@ -56,9 +70,5 @@ if [ $? -ne 0 ]; then
   echo "Signature verification failed"
   exit 1
 fi
-
-# Verify the universal binary
-echo "Verifying universal binary..."
-file "$UNIVERSAL_LIB"
 
 echo "Universal binary created and signed successfully: $UNIVERSAL_LIB"
