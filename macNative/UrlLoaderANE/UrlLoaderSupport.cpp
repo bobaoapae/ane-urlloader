@@ -92,7 +92,7 @@ FREObject UrlLoaderSupport::expose_loadUrl(FREContext ctx, void *functionData, u
     FREGetObjectAsUTF8(argv[3], &headersLength, &headers);
     writeLog(("Headers: " + std::string((const char *)headers)).c_str());
 
-    char *result = startLoader((const char *)url, (const char *)method, (const char *)variable, (const char *)headers);
+    char *result = startLoad((const char *)url, (const char *)method, (const char *)variable, (const char *)headers);
 
     if (!result) {
         writeLog("startLoader returned null");

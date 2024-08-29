@@ -10,10 +10,11 @@
 
 #include <stdio.h>
 
-void *loadNativeLibrary();
-void *getFunctionPointer(const char *functionName);
-int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
-char *startLoader(const char *url, const char *method, const char *variables,  const char *headers);
-void freeId(const char *id);
+extern "C" {
+    // Force the use of the exact symbol names from the library
+    int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
+    char* startLoad(const char* url, const char* method, const char* variables, const char* headers);
+    void freeId(const char* id);
+}
 
 #endif /* UrlLoaderNativeLibrary_hpp */

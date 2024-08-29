@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5792991A2C7D445800C0EDAA"
+               BlueprintIdentifier = "579299262C7D584000C0EDAA"
                BuildableName = "UrlLoaderANE.framework"
                BlueprintName = "UrlLoaderANE"
                ReferencedContainer = "container:UrlLoaderANE.xcodeproj">
@@ -50,7 +50,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5792991A2C7D445800C0EDAA"
+            BlueprintIdentifier = "579299262C7D584000C0EDAA"
             BuildableName = "UrlLoaderANE.framework"
             BlueprintName = "UrlLoaderANE"
             ReferencedContainer = "container:UrlLoaderANE.xcodeproj">

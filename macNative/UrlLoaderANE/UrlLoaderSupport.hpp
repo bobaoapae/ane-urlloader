@@ -9,7 +9,7 @@
 #include "log.hpp"
 typedef void* NSWindow; // don't need this..
 #include <FlashRuntimeExtensions.h>  // Adobe AIR runtime includes
-#include <UrlLoaderNativeLibrary.hpp>
+#include "UrlLoaderNativeLibrary.hpp"
 
 class UrlLoaderSupport {
 private:
