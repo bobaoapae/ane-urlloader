@@ -9,12 +9,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /D_ITERATOR_DEBUG_LEVEL=
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(STATUS "Compiling for x64")
-    set(LIBRARY_PATH "C:/AIRSDKs/AIRSDK_51.0.1/lib/win64")
-    set(INCLUDE_PATH "C:/AIRSDKs/AIRSDK_51.0.1/include")
+    set(LIBRARY_PATH "C:/AIRSDKs/AIRSDK_51.1.1.3/lib/win64")
+    set(INCLUDE_PATH "C:/AIRSDKs/AIRSDK_51.1.1.3/include")
 else()
     message(STATUS "Compiling for x86")
-    set(LIBRARY_PATH "C:/AIRSDKs/AIRSDK_51.0.1/lib/win")
-    set(INCLUDE_PATH "C:/AIRSDKs/AIRSDK_51.0.1/include")
+    set(LIBRARY_PATH "C:/AIRSDKs/AIRSDK_51.1.1.3/lib/win")
+    set(INCLUDE_PATH "C:/AIRSDKs/AIRSDK_51.1.1.3/include")
 endif()
 
 if(VCPKG_TARGET_TRIPLET MATCHES "-static$")
