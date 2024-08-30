@@ -1,0 +1,6 @@
+framework module UrlLoaderANE {
+  umbrella header "UrlLoaderANE.h"
+  export *
+
+  module * { export * }
+}

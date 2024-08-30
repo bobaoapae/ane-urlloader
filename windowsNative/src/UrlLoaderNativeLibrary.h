@@ -11,7 +11,7 @@
 #include "dlfcn.h"
 #endif
 
-void *loadNativeLibrary();
+bool loadNativeLibrary();
 void *getFunctionPointer(const char *functionName);
 int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
 char *startLoader(const char *url, const char *method, const char *variables,  const char *headers);

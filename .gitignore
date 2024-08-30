@@ -1,6 +1,4 @@
 *.swc
-*.DS_Store
-/**/.DS_Store
 /aneBuild/**/*.swc
 /aneBuild/**/*.aar
 /aneBuild/**/*.swf
