@@ -1,12 +1,12 @@
 //
-//  UrlLoaderANE_ios.h
-//  UrlLoaderANE-ios
+//  UrlLoaderANE_IOS.h
+//  UrlLoaderANE-IOS
 //
-//  Created by João Vitor Borges on 28/08/24.
+//  Created by João Vitor Borges on 02/09/24.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface UrlLoaderANE_ios : NSObject
+@interface UrlLoaderANE_IOS : NSObject
 
 @end

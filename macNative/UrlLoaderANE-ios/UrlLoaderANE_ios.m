@@ -1,12 +1,12 @@
 //
-//  UrlLoaderANE_ios.m
-//  UrlLoaderANE-ios
+//  UrlLoaderANE_IOS.m
+//  UrlLoaderANE-IOS
 //
-//  Created by João Vitor Borges on 28/08/24.
+//  Created by João Vitor Borges on 02/09/24.
 //
 
-#import "UrlLoaderANE_ios.h"
+#import "UrlLoaderANE_IOS.h"
 
-@implementation UrlLoaderANE_ios
+@implementation UrlLoaderANE_IOS
 
 @end
