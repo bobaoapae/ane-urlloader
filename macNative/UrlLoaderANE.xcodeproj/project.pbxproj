@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		577813D62C864B6E00CEC5BC /* UrlLoaderANE_IOS.m in Sources */ = {isa = PBXBuildFile; fileRef = 577813D52C864B6E00CEC5BC /* UrlLoaderANE_IOS.m */; };
+		577813D72C864B6E00CEC5BC /* UrlLoaderANE_IOS.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 577813D42C864B6E00CEC5BC /* UrlLoaderANE_IOS.h */; };
+		577813DE2C864D5E00CEC5BC /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5792992E2C7D585300C0EDAA /* log.cpp */; };
+		577813DF2C864D6500CEC5BC /* UrlLoaderSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5792992F2C7D585300C0EDAA /* UrlLoaderSupport.cpp */; };
 		5792992A2C7D584000C0EDAA /* UrlLoaderANE.h in Headers */ = {isa = PBXBuildFile; fileRef = 579299292C7D584000C0EDAA /* UrlLoaderANE.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		579299332C7D585300C0EDAA /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5792992E2C7D585300C0EDAA /* log.cpp */; };
 		579299342C7D585300C0EDAA /* UrlLoaderSupport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5792992F2C7D585300C0EDAA /* UrlLoaderSupport.cpp */; };
@@ -14,22 +18,26 @@
 		579299372C7D585300C0EDAA /* log.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 579299322C7D585300C0EDAA /* log.hpp */; };
 		579299382C7D5BC000C0EDAA /* Adobe AIR.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579298E42C7D00B000C0EDAA /* Adobe AIR.framework */; };
 		5792993B2C7D66B100C0EDAA /* UrlLoaderSupport.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 5792993A2C7D66B100C0EDAA /* UrlLoaderSupport.hpp */; };
-		57A4DCE32C8014EC0045B3D1 /* UrlLoaderANE_ios.m in Sources */ = {isa = PBXBuildFile; fileRef = 57A4DCE22C8014EC0045B3D1 /* UrlLoaderANE_ios.m */; };
-		57A4DCE42C8014EC0045B3D1 /* UrlLoaderANE_ios.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 57A4DCE12C8014EC0045B3D1 /* UrlLoaderANE_ios.h */; };
-		57A4DCE82C8015580045B3D1 /* Adobe AIR.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579298E42C7D00B000C0EDAA /* Adobe AIR.framework */; };
 		57A4DCFB2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 57A4DCFA2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib */; };
 		57A4DCFC2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 57A4DCFA2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib */; };
+		57D242612C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 57D242602C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		57D242672C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 57D242662C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib */; platformFilter = ios; };
+		57D242682C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 57D242662C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib */; platformFilter = ios; };
+		57D242742C86E96800FFEFD8 /* UrlLoaderNativeLibrary.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 579299302C7D585300C0EDAA /* UrlLoaderNativeLibrary.hpp */; };
+		57D242772C86E9B400FFEFD8 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57D242752C86E9B400FFEFD8 /* Test.cpp */; };
+		57D242782C86E9B400FFEFD8 /* Test.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 57D242762C86E9B400FFEFD8 /* Test.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		57A4DCDD2C8014EC0045B3D1 /* CopyFiles */ = {
+		577813D02C864B6E00CEC5BC /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				57A4DCE42C8014EC0045B3D1 /* UrlLoaderANE_ios.h in CopyFiles */,
+				577813D72C864B6E00CEC5BC /* UrlLoaderANE_IOS.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		57A4DCFD2C801A1D0045B3D1 /* Embed Libraries */ = {
@@ -43,9 +51,24 @@
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		57D242692C86E5A000FFEFD8 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				57D242682C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		577813D22C864B6E00CEC5BC /* libUrlLoaderANE-IOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libUrlLoaderANE-IOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		577813D42C864B6E00CEC5BC /* UrlLoaderANE_IOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UrlLoaderANE_IOS.h; sourceTree = "<group>"; };
+		577813D52C864B6E00CEC5BC /* UrlLoaderANE_IOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UrlLoaderANE_IOS.m; sourceTree = "<group>"; };
+		577813DB2C864CF600CEC5BC /* UrlLoaderNativeLibraryIOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = UrlLoaderNativeLibraryIOS.a; path = "../../IdeaProjects/ane-urlloader/CSharpLibrary/UrlLoaderNativeLibrary/bin/Release/net9.0/ios-arm64/native/UrlLoaderNativeLibraryIOS.a"; sourceTree = "<group>"; };
 		579298E42C7D00B000C0EDAA /* Adobe AIR.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "Adobe AIR.framework"; path = "../../AirSdks/AIRSDK_51.1.1/runtimes/air/mac/Adobe AIR.framework"; sourceTree = "<group>"; };
 		579299272C7D584000C0EDAA /* UrlLoaderANE.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UrlLoaderANE.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		579299292C7D584000C0EDAA /* UrlLoaderANE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UrlLoaderANE.h; sourceTree = "<group>"; };
@@ -54,13 +77,22 @@
 		579299302C7D585300C0EDAA /* UrlLoaderNativeLibrary.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UrlLoaderNativeLibrary.hpp; sourceTree = "<group>"; };
 		579299322C7D585300C0EDAA /* log.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = log.hpp; sourceTree = "<group>"; };
 		5792993A2C7D66B100C0EDAA /* UrlLoaderSupport.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UrlLoaderSupport.hpp; sourceTree = "<group>"; };
-		57A4DCDF2C8014EC0045B3D1 /* libUrlLoaderANE-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libUrlLoaderANE-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		57A4DCE12C8014EC0045B3D1 /* UrlLoaderANE_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UrlLoaderANE_ios.h; sourceTree = "<group>"; };
-		57A4DCE22C8014EC0045B3D1 /* UrlLoaderANE_ios.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UrlLoaderANE_ios.m; sourceTree = "<group>"; };
 		57A4DCFA2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = UrlLoaderNativeLibrary.dylib; path = "../../IdeaProjects/ane-urlloader/CSharpLibrary/UrlLoaderNativeLibrary/bin/Release/net9.0/universal/UrlLoaderNativeLibrary.dylib"; sourceTree = "<group>"; };
+		57D2425E2C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UrlLoaderANE_IOS_Wrapper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		57D242602C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UrlLoaderANE_IOS_Wrapper.h; sourceTree = "<group>"; };
+		57D242662C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = UrlLoaderNativeLibrary.dylib; path = "../../IdeaProjects/ane-urlloader/CSharpLibrary/UrlLoaderNativeLibrary/bin/Release/net9.0/ios-universal/UrlLoaderNativeLibrary.dylib"; sourceTree = "<group>"; };
+		57D242752C86E9B400FFEFD8 /* Test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test.cpp; sourceTree = "<group>"; };
+		57D242762C86E9B400FFEFD8 /* Test.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		577813CF2C864B6E00CEC5BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		579299242C7D584000C0EDAA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -70,22 +102,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57A4DCDC2C8014EC0045B3D1 /* Frameworks */ = {
+		57D2425B2C86DC8100FFEFD8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				57A4DCE82C8015580045B3D1 /* Adobe AIR.framework in Frameworks */,
+				57D242672C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		577813D32C864B6E00CEC5BC /* UrlLoaderANE-IOS */ = {
+			isa = PBXGroup;
+			children = (
+				577813D42C864B6E00CEC5BC /* UrlLoaderANE_IOS.h */,
+				577813D52C864B6E00CEC5BC /* UrlLoaderANE_IOS.m */,
+			);
+			path = "UrlLoaderANE-IOS";
+			sourceTree = "<group>";
+		};
 		579298CF2C7CF4A700C0EDAA = {
 			isa = PBXGroup;
 			children = (
 				579299282C7D584000C0EDAA /* UrlLoaderANE */,
-				57A4DCE02C8014EC0045B3D1 /* UrlLoaderANE-ios */,
+				577813D32C864B6E00CEC5BC /* UrlLoaderANE-IOS */,
+				57D2425F2C86DC8100FFEFD8 /* UrlLoaderANE-IOS-Wrapper */,
 				579298DA2C7CF4A700C0EDAA /* Products */,
 				579298E32C7D00B000C0EDAA /* Frameworks */,
 			);
@@ -95,7 +137,8 @@
 			isa = PBXGroup;
 			children = (
 				579299272C7D584000C0EDAA /* UrlLoaderANE.framework */,
-				57A4DCDF2C8014EC0045B3D1 /* libUrlLoaderANE-ios.a */,
+				577813D22C864B6E00CEC5BC /* libUrlLoaderANE-IOS.a */,
+				57D2425E2C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,6 +146,8 @@
 		579298E32C7D00B000C0EDAA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				57D242662C86E5A000FFEFD8 /* UrlLoaderNativeLibrary.dylib */,
+				577813DB2C864CF600CEC5BC /* UrlLoaderNativeLibraryIOS.a */,
 				57A4DCFA2C801A1D0045B3D1 /* UrlLoaderNativeLibrary.dylib */,
 				579298E42C7D00B000C0EDAA /* Adobe AIR.framework */,
 			);
@@ -122,13 +167,14 @@
 			path = UrlLoaderANE;
 			sourceTree = "<group>";
 		};
-		57A4DCE02C8014EC0045B3D1 /* UrlLoaderANE-ios */ = {
+		57D2425F2C86DC8100FFEFD8 /* UrlLoaderANE-IOS-Wrapper */ = {
 			isa = PBXGroup;
 			children = (
-				57A4DCE12C8014EC0045B3D1 /* UrlLoaderANE_ios.h */,
-				57A4DCE22C8014EC0045B3D1 /* UrlLoaderANE_ios.m */,
+				57D242602C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.h */,
+				57D242752C86E9B400FFEFD8 /* Test.cpp */,
+				57D242762C86E9B400FFEFD8 /* Test.hpp */,
 			);
-			path = "UrlLoaderANE-ios";
+			path = "UrlLoaderANE-IOS-Wrapper";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,9 +191,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		57D242592C86DC8100FFEFD8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57D242742C86E96800FFEFD8 /* UrlLoaderNativeLibrary.hpp in Headers */,
+				57D242782C86E9B400FFEFD8 /* Test.hpp in Headers */,
+				57D242612C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		577813D12C864B6E00CEC5BC /* UrlLoaderANE-IOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 577813D82C864B6E00CEC5BC /* Build configuration list for PBXNativeTarget "UrlLoaderANE-IOS" */;
+			buildPhases = (
+				577813CE2C864B6E00CEC5BC /* Sources */,
+				577813CF2C864B6E00CEC5BC /* Frameworks */,
+				577813D02C864B6E00CEC5BC /* Copy Files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "UrlLoaderANE-IOS";
+			productName = "UrlLoaderANE-IOS";
+			productReference = 577813D22C864B6E00CEC5BC /* libUrlLoaderANE-IOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		579299262C7D584000C0EDAA /* UrlLoaderANE */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5792992B2C7D584000C0EDAA /* Build configuration list for PBXNativeTarget "UrlLoaderANE" */;
@@ -167,22 +240,24 @@
 			productReference = 579299272C7D584000C0EDAA /* UrlLoaderANE.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		57A4DCDE2C8014EC0045B3D1 /* UrlLoaderANE-ios */ = {
+		57D2425D2C86DC8100FFEFD8 /* UrlLoaderANE-IOS-Wrapper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 57A4DCE52C8014EC0045B3D1 /* Build configuration list for PBXNativeTarget "UrlLoaderANE-ios" */;
+			buildConfigurationList = 57D242622C86DC8100FFEFD8 /* Build configuration list for PBXNativeTarget "UrlLoaderANE-IOS-Wrapper" */;
 			buildPhases = (
-				57A4DCDB2C8014EC0045B3D1 /* Sources */,
-				57A4DCDC2C8014EC0045B3D1 /* Frameworks */,
-				57A4DCDD2C8014EC0045B3D1 /* CopyFiles */,
+				57D242592C86DC8100FFEFD8 /* Headers */,
+				57D2425A2C86DC8100FFEFD8 /* Sources */,
+				57D2425B2C86DC8100FFEFD8 /* Frameworks */,
+				57D2425C2C86DC8100FFEFD8 /* Resources */,
+				57D242692C86E5A000FFEFD8 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = "UrlLoaderANE-ios";
-			productName = "UrlLoaderANE-ios";
-			productReference = 57A4DCDF2C8014EC0045B3D1 /* libUrlLoaderANE-ios.a */;
-			productType = "com.apple.product-type.library.static";
+			name = "UrlLoaderANE-IOS-Wrapper";
+			productName = "UrlLoaderANE-IOS-Wrapper";
+			productReference = 57D2425E2C86DC8100FFEFD8 /* UrlLoaderANE_IOS_Wrapper.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -193,10 +268,13 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
+					577813D12C864B6E00CEC5BC = {
+						CreatedOnToolsVersion = 15.4;
+					};
 					579299262C7D584000C0EDAA = {
 						CreatedOnToolsVersion = 15.4;
 					};
-					57A4DCDE2C8014EC0045B3D1 = {
+					57D2425D2C86DC8100FFEFD8 = {
 						CreatedOnToolsVersion = 15.4;
 					};
 				};
@@ -215,7 +293,8 @@
 			projectRoot = "";
 			targets = (
 				579299262C7D584000C0EDAA /* UrlLoaderANE */,
-				57A4DCDE2C8014EC0045B3D1 /* UrlLoaderANE-ios */,
+				577813D12C864B6E00CEC5BC /* UrlLoaderANE-IOS */,
+				57D2425D2C86DC8100FFEFD8 /* UrlLoaderANE-IOS-Wrapper */,
 			);
 		};
 /* End PBXProject section */
@@ -228,9 +307,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		57D2425C2C86DC8100FFEFD8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		577813CE2C864B6E00CEC5BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				577813DE2C864D5E00CEC5BC /* log.cpp in Sources */,
+				577813D62C864B6E00CEC5BC /* UrlLoaderANE_IOS.m in Sources */,
+				577813DF2C864D6500CEC5BC /* UrlLoaderSupport.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		579299232C7D584000C0EDAA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -240,17 +336,50 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		57A4DCDB2C8014EC0045B3D1 /* Sources */ = {
+		57D2425A2C86DC8100FFEFD8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				57A4DCE32C8014EC0045B3D1 /* UrlLoaderANE_ios.m in Sources */,
+				57D242772C86E9B400FFEFD8 /* Test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		577813D92C864B6E00CEC5BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = QZPLNQ7VA7;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		577813DA2C864B6E00CEC5BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = QZPLNQ7VA7;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		579298DE2C7CF4A700C0EDAA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -315,9 +444,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LIBRARY_SEARCH_PATHS = /Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -385,9 +515,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/include;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LIBRARY_SEARCH_PATHS = /Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/lib;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -467,30 +598,78 @@
 			};
 			name = Release;
 		};
-		57A4DCE62C8014EC0045B3D1 /* Debug */ = {
+		57D242632C86DC8100FFEFD8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = QZPLNQ7VA7;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/lib,
+					"/Users/joaovitorborges/IdeaProjects/ane-urlloader/CSharpLibrary/UrlLoaderNativeLibrary/bin/Release/net9.0/universal",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = "br.com.redesurftank.UrlLoaderANE-IOS-Wrapper";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		57A4DCE72C8014EC0045B3D1 /* Release */ = {
+		57D242642C86DC8100FFEFD8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = QZPLNQ7VA7;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/Users/joaovitorborges/AirSdks/AIRSDK_51.1.1/lib,
+					"/Users/joaovitorborges/IdeaProjects/ane-urlloader/CSharpLibrary/UrlLoaderNativeLibrary/bin/Release/net9.0/universal",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = "br.com.redesurftank.UrlLoaderANE-IOS-Wrapper";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -499,6 +678,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		577813D82C864B6E00CEC5BC /* Build configuration list for PBXNativeTarget "UrlLoaderANE-IOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				577813D92C864B6E00CEC5BC /* Debug */,
+				577813DA2C864B6E00CEC5BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		579298D32C7CF4A700C0EDAA /* Build configuration list for PBXProject "UrlLoaderANE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -517,11 +705,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		57A4DCE52C8014EC0045B3D1 /* Build configuration list for PBXNativeTarget "UrlLoaderANE-ios" */ = {
+		57D242622C86DC8100FFEFD8 /* Build configuration list for PBXNativeTarget "UrlLoaderANE-IOS-Wrapper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				57A4DCE62C8014EC0045B3D1 /* Debug */,
-				57A4DCE72C8014EC0045B3D1 /* Release */,
+				57D242632C86DC8100FFEFD8 /* Debug */,
+				57D242642C86DC8100FFEFD8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
