@@ -1,0 +1,6 @@
+framework module UrlLoaderANE_IOS_Wrapper {
+  umbrella header "UrlLoaderANE_IOS_Wrapper.h"
+  export *
+
+  module * { export * }
+}

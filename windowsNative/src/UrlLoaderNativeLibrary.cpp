@@ -6,7 +6,7 @@
 #include <log.h>
 
 // Use a unique_ptr with a custom deleter to manage the library handle
-static std::unique_ptr<HMODULE, decltype(&FreeLibrary)> library(nullptr, FreeLibrary);
+static std::unique_ptr<std::remove_pointer<HMODULE>::type, decltype(&FreeLibrary)> library(nullptr, FreeLibrary);
 
 std::string GetLibraryLocation(int argc, char *argv[]) {
     std::string baseDirectory;
@@ -51,7 +51,7 @@ bool loadNativeLibrary() {
         return false;
     }
 
-    library.reset(&handle);  // Pass handle directly, not &handle
+    library.reset(handle);  // Pass handle directly, not &handle
     writeLog("Library loaded successfully");
     return true;
 }
@@ -61,7 +61,7 @@ void* getFunctionPointer(const char* functionName) {
         return nullptr;
     }
 
-    void* func = GetProcAddress(*library, functionName);  // Use library.get() instead of *library
+    void* func = GetProcAddress(library.get(), functionName);  // Use library.get() instead of *library
     if (!func) {
         std::cerr << "Could not load function: " << GetLastError() << std::endl;
         writeLog("Could not load function");
@@ -75,7 +75,7 @@ void* getFunctionPointer(const char* functionName) {
 int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog) {
     writeLog("Calling initializerLoader");
 
-    using InitializerFunc = int (*)(void*, void*, void*, void*);
+    using InitializerFunc = int (__cdecl *)(void*, void*, void*, void*);
     auto func = reinterpret_cast<InitializerFunc>(getFunctionPointer("initializerLoader"));
 
     if (!func) {
@@ -91,7 +91,7 @@ int initializerLoader(void* callBackSuccess, void* callBackError, void* callBack
 char* startLoader(const char* url, const char* method, const char* variables, const char* headers) {
     writeLog("Calling startLoader");
 
-    using StartLoaderFunc = char* (*)(const char*, const char*, const char*, const char*);
+    using StartLoaderFunc = char* (__cdecl *)(const char*, const char*, const char*, const char*);
     auto func = reinterpret_cast<StartLoaderFunc>(getFunctionPointer("startLoad"));
 
     if (!func) {
@@ -112,7 +112,7 @@ char* startLoader(const char* url, const char* method, const char* variables, co
 void freeId(const char* id) {
     writeLog("Calling freeId");
 
-    using FreeIdFunc = void (*)(const char*);
+    using FreeIdFunc = void (__cdecl *)(const char*);
     auto func = reinterpret_cast<FreeIdFunc>(getFunctionPointer("freeId"));
 
     if (func) {

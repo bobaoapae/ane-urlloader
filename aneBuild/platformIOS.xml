@@ -1,0 +1,13 @@
+<platform xmlns="http://ns.adobe.com/air/extension/51.1">
+    <copyright>RedeSurfTank LTDA 2024</copyright>
+    <sdkVersion>12.2</sdkVersion>
+    <linkerOptions>
+        <option>-ObjC</option>
+        <option>-ios_version_min 12.2</option>
+        <option>-rpath @loader_path/Frameworks</option>
+        <option>Frameworks/UrlLoaderANE_IOS_Wrapper.framework/Frameworks/UrlLoaderNativeLibrary.dylib</option>
+    </linkerOptions>
+    <packagedDependencies>
+        <packagedDependency>UrlLoaderANE_IOS_Wrapper.framework</packagedDependency>
+    </packagedDependencies>
+</platform>

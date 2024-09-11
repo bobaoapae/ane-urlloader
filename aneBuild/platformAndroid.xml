@@ -1,4 +1,4 @@
-<platform xmlns="http://ns.adobe.com/air/extension/51.0">
+<platform xmlns="http://ns.adobe.com/air/extension/51.1">
 	<gradle>
 		<repositories>
 			<repository>google()</repository>

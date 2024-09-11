@@ -11,4 +11,5 @@ xcopy ..\CSharpLibrary\UrlLoaderNativeLibrary\bin\Release\net9.0\win-x86\publish
 7z e library.swc library.swf -o./android -aoa
 7z e library.swc library.swf -o./windows-32 -aoa
 7z e library.swc library.swf -o./macos -aoa
-adt -package -target ane br.com.redesurftank.aneurlloader.ane extension.xml -swc library.swc -platform default -C default . -platform Android-ARM -platformoptions platformAndroid.xml -C android . -platform Android-ARM64 -platformoptions platformAndroid.xml -C android . -platform Android-x86 -platformoptions platformAndroid.xml -C android . -platform Android-x64 -platformoptions platformAndroid.xml -C android . -platform Windows-x86 -C windows-32 . -platform MacOS-x86-64 -C macos .
+7z e library.swc library.swf -o./ios -aoa
+adt -package -target ane br.com.redesurftank.aneurlloader.ane extension.xml -swc library.swc -platform default -C default . -platform Android-ARM -platformoptions platformAndroid.xml -C android . -platform Android-ARM64 -platformoptions platformAndroid.xml -C android . -platform Android-x86 -platformoptions platformAndroid.xml -C android . -platform Android-x64 -platformoptions platformAndroid.xml -C android . -platform Windows-x86 -C windows-32 . -platform MacOS-x86-64 -C macos . -platform iPhone-ARM -platformoptions platformIOS.xml -C ios .

@@ -10,13 +10,13 @@ AneUrlLoader is an Adobe AIR Native Extension (ANE) compatible with Windows 32-b
 - **HTTP/2 Support**: Utilizes HTTP/2 for faster and more efficient network communication, with a fallback to HTTP/1 if needed.
 - **TLS 1.3**: Supports the latest TLS 1.3 protocol for enhanced security and performance.
 - **Custom DNS Resolver**: Uses Cloudflare and Google DNS by default, with the ability to configure custom DNS servers for more flexibility.
-- **Cross-Platform Compatibility**: Works seamlessly across Windows 32-bit, Android, and macOS platforms.
 
 ## Supported Platforms
 
 - Windows 32-bit
 - Android
 - macOS
+- ios (Need to manually resign the framework and dylib files after generating the IPA file, use the resign.sh script inside aneBuild folder).
 
 ## Installation
 

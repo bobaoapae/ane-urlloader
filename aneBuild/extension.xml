@@ -1,4 +1,4 @@
-<extension xmlns="http://ns.adobe.com/air/extension/51.0">
+<extension xmlns="http://ns.adobe.com/air/extension/51.1">
     <id>br.com.redesurftank.aneurlloader</id>
     <versionNumber>1</versionNumber>
     <platforms>
@@ -36,6 +36,13 @@
         <platform name="MacOS-x86-64">
             <applicationDeployment>
                 <nativeLibrary>UrlLoaderANE.framework</nativeLibrary>
+                <initializer>InitExtension</initializer>
+                <finalizer>DestroyExtension</finalizer>
+            </applicationDeployment>
+        </platform>
+        <platform name="iPhone-ARM">
+            <applicationDeployment>
+                <nativeLibrary>libUrlLoaderANE-IOS.a</nativeLibrary>
                 <initializer>InitExtension</initializer>
                 <finalizer>DestroyExtension</finalizer>
             </applicationDeployment>
