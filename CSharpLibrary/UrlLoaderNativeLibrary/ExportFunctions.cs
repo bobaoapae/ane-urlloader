@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -24,7 +25,7 @@ public static unsafe class ExportFunctions
     private static CallBackProgressPointer _callbackProgress;
     private static CallBackLogPointer _callbackLog;
 
-    [UnmanagedCallersOnly(EntryPoint = "initializerLoader")]
+    [UnmanagedCallersOnly(EntryPoint = "initializerLoader", CallConvs = [typeof(CallConvCdecl)])]
     public static int InitializerLoader(IntPtr pointerCallBackSuccess, IntPtr pointerCallBackError, IntPtr pointerCallBackProgress, IntPtr pointerCallBackLog)
     {
         var result = -1;
@@ -87,7 +88,7 @@ public static unsafe class ExportFunctions
         return result;
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "startLoad")]
+    [UnmanagedCallersOnly(EntryPoint = "startLoad", CallConvs = [typeof(CallConvCdecl)])]
     public static IntPtr StartLoad(IntPtr urlPtr, IntPtr methodPtr, IntPtr variablesPtr, IntPtr headersPtr)
     {
         try
@@ -110,7 +111,7 @@ public static unsafe class ExportFunctions
     }
 
     //free id return from startLoad
-    [UnmanagedCallersOnly(EntryPoint = "freeId")]
+    [UnmanagedCallersOnly(EntryPoint = "freeId", CallConvs = [typeof(CallConvCdecl)])]
     public static void FreeId(IntPtr idPtr)
     {
         Marshal.FreeCoTaskMem(idPtr);
