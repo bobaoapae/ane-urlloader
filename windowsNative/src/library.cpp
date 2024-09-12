@@ -34,7 +34,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-void SuccessCallback(const char *id, uint8_t *result, int32_t length) {
+void __cdecl SuccessCallback(const char *id, uint8_t *result, int32_t length) {
     writeLog("Calling SuccessCallback");
     std::string id_str(id);
 
@@ -57,7 +57,7 @@ void SuccessCallback(const char *id, uint8_t *result, int32_t length) {
     writeLog("Dispatched success event");
 }
 
-void ErrorCallback(const char *id, const char *message) {
+void __cdecl ErrorCallback(const char *id, const char *message) {
     std::string id_str(id);
     std::string message_str(message);
 
@@ -67,7 +67,7 @@ void ErrorCallback(const char *id, const char *message) {
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *) "error", (const uint8_t *) concatenated.c_str());
 }
 
-void ProgressCallback(const char *id, const char *message) {
+void __cdecl ProgressCallback(const char *id, const char *message) {
     std::string id_str(id);
     std::string message_str(message);
 
@@ -77,7 +77,7 @@ void ProgressCallback(const char *id, const char *message) {
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *) "progress", (const uint8_t *) concatenated.c_str());
 }
 
-void WriteLogCallback(const char *message) {
+void __cdecl WriteLogCallback(const char *message) {
     std::string msg = "C#: ";
     msg += message;
     writeLog(msg.c_str());
