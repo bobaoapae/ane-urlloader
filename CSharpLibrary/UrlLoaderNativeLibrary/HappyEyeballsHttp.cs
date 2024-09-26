@@ -157,7 +157,7 @@ public static class HappyEyeballsHttp
         catch (Exception e)
         {
             socket.Dispose();
-            throw;
+            return null;
         }
     }
 
@@ -177,15 +177,15 @@ public static class HappyEyeballsHttp
             if (ipAddresses.Length > 0)
                 return ipAddresses;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            throw new Exception($"Failed to resolve {endPoint.Host}", e);
+            //ignore
         }
 
         try
         {
-            var ips4 = await ResolveUsingDoH(endPoint.Host, "A", cancel);
-            var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA", cancel);
+            var ips4 = await ResolveUsingDoH(endPoint.Host, "A");
+            var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA");
             ipAddresses = ips4.Concat(ips6).ToArray();
             return ipAddresses;
         }
@@ -195,7 +195,7 @@ public static class HappyEyeballsHttp
         }
     }
 
-    private static async Task<IPAddress[]> ResolveUsingDoH(string host, string type, CancellationToken cancel)
+    private static async Task<IPAddress[]> ResolveUsingDoH(string host, string type)
     {
         try
         {
@@ -207,23 +207,33 @@ public static class HappyEyeballsHttp
             request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/dns-json"));
 
             // Send the request and get the response
-            var response = await DohHttpClientCloudFlare.SendAsync(request, cancel).ConfigureAwait(false);
+            var response = await DohHttpClientCloudFlare.SendAsync(request).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
             // Parse the JSON result using the source generator
-            var jsonResponse = await response.Content.ReadAsStringAsync(cancel).ConfigureAwait(false);
+            var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var dnsResponse = JsonSerializer.Deserialize(jsonResponse, DnsResponseContext.Default.DnsResponse);
 
-            // Collect A and AAAA records
             var ipAddresses = dnsResponse.Answers
                 .Where(answer => answer.Type == 1 || answer.Type == 28) // 1 for A records, 28 for AAAA records
-                .Select(answer => IPAddress.Parse(answer.Data))
+                .Select(answer =>
+                {
+                    // Try to parse the IP address, handle both IPv4 and IPv6
+                    if (IPAddress.TryParse(answer.Data, out var parsedAddress))
+                    {
+                        return parsedAddress;
+                    }
+
+                    return null; // Return null for invalid IP addresses
+                })
+                .Where(ip => ip != null) // Filter out nulls (failed parses)
                 .ToArray();
 
             return ipAddresses;
         }
         catch (Exception e)
         {
+            Console.WriteLine(e);
             throw new Exception($"Failed to resolve {host} via DoH", e);
         }
     }
@@ -280,8 +290,8 @@ public static class HappyEyeballsHttp
         // Every iteration we add another task, until we're full on them.
         // We keep looping until we have SUCCESS, or we run out of attempt tasks entirely.
 
-        Task<T>? successTask = null;
-        while (successTask == null && (allTasks.Count < candidateCount || tasks.Count > 0))
+        Task<T> successTask = null;
+        while ((allTasks.Count < candidateCount || tasks.Count > 0))
         {
             if (allTasks.Count < candidateCount)
             {
@@ -312,7 +322,7 @@ public static class HappyEyeballsHttp
                 completedTask = await whenAnyDone.ConfigureAwait(false);
             }
 
-            if (completedTask.IsCompletedSuccessfully)
+            if (completedTask.IsCompletedSuccessfully && completedTask.Result != null)
             {
                 // We did it. We have success.
                 successTask = completedTask;
@@ -342,7 +352,7 @@ public static class HappyEyeballsHttp
         foreach (var task in allTasks)
         {
             if (task.IsCompletedSuccessfully && task != successTask)
-                task.Result.Dispose();
+                task.Result?.Dispose();
         }
 
         return (successTask.Result, allTasks.IndexOf(successTask));
