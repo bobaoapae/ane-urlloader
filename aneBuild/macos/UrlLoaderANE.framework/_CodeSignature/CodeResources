@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		TLx+pgWbVa1aqf2Cc2WEdyricZY=
+		+YGGX/7go4tBqvdMFNKgnNo9uTI=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -15,7 +15,7 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			xVKCFJfdRdsZc9znMVlGn38Rdqs=
+			SyUwn65E68dP6HkMAYjaCdo+jpQ=
 			</data>
 			<key>requirement</key>
 			<string>identifier UrlLoaderNativeLibrary and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = QZPLNQ7VA7</string>
@@ -38,7 +38,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Im0sqOwdwIB4Mig6R2r1pyTM3zEbdKV3s7Sy/TcenN0=
+			/rv2WTMerkl3aHbSNJ9um6t4dCZYhc0RXZVJTGFUX/w=
 			</data>
 		</dict>
 	</dict>
