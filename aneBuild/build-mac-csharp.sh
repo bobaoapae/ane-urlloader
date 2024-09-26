@@ -68,7 +68,7 @@ echo "Install name fixed successfully for macOS dylib."
 
 # Sign the macOS universal binary
 echo "Signing macOS universal binary..."
-codesign --force --sign "$SIGNING_IDENTITY" "$MACOS_UNIVERSAL_LIB"
+codesign --force --sign "$SIGNING_IDENTITY" --options=runtime --timestamp "$MACOS_UNIVERSAL_LIB"
 if [ $? -ne 0 ]; then
   echo "Failed to sign the macOS universal binary"
   exit 1
@@ -107,7 +107,7 @@ echo "Install name fixed successfully for iOS dylib."
 
 # Sign the iOS binary
 echo "Signing iOS binary..."
-codesign --force --sign "$SIGNING_IDENTITY" "$IOS_UNIVERSAL_LIB"
+codesign --force --sign "$SIGNING_IDENTITY" --options=runtime --timestamp "$IOS_UNIVERSAL_LIB"
 if [ $? -ne 0 ]; then
   echo "Failed to sign the iOS binary"
   exit 1

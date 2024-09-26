@@ -12,9 +12,9 @@
 
 extern "C" {
     // Force the use of the exact symbol names from the library
-    int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
-    char* startLoad(const char* url, const char* method, const char* variables, const char* headers);
-    void freeId(const char* id);
+    int __cdecl initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
+    char* __cdecl startLoad(const char* url, const char* method, const char* variables, const char* headers);
+    void __cdecl freeId(const char* id);
 }
 
 #endif /* UrlLoaderNativeLibrary_hpp */

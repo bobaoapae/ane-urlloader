@@ -28,7 +28,7 @@ FRENamedFunction* UrlLoaderSupport::getFunctions() const {
     return _functions;
 }
 
-void UrlLoaderSupport::SuccessCallback(const char *id, uint8_t *result, int32_t length) {
+__cdecl void UrlLoaderSupport::SuccessCallback(const char *id, uint8_t *result, int32_t length) {
     writeLog("Calling SuccessCallback");
 
     std::string id_str(id);
@@ -47,7 +47,7 @@ void UrlLoaderSupport::SuccessCallback(const char *id, uint8_t *result, int32_t 
     writeLog("Dispatched success event");
 }
 
-void UrlLoaderSupport::ErrorCallback(const char *id, const char *message) {
+__cdecl void UrlLoaderSupport::ErrorCallback(const char *id, const char *message) {
     std::string id_str(id);
     std::string message_str(message);
     std::string concatenated = id_str + ";" + message_str;
@@ -55,7 +55,7 @@ void UrlLoaderSupport::ErrorCallback(const char *id, const char *message) {
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *)"error", (const uint8_t *)concatenated.c_str());
 }
 
-void UrlLoaderSupport::ProgressCallback(const char *id, const char *message) {
+__cdecl void UrlLoaderSupport::ProgressCallback(const char *id, const char *message) {
     std::string id_str(id);
     std::string message_str(message);
     std::string concatenated = id_str + ";" + message_str;
@@ -63,7 +63,7 @@ void UrlLoaderSupport::ProgressCallback(const char *id, const char *message) {
     FREDispatchStatusEventAsync(g_ctx, (const uint8_t *)"progress", (const uint8_t *)concatenated.c_str());
 }
 
-void UrlLoaderSupport::WriteLogCallback(const char *message) {
+__cdecl void UrlLoaderSupport::WriteLogCallback(const char *message) {
     std::string msg = "C#: ";
     msg += message;
     writeLog(msg.c_str());
