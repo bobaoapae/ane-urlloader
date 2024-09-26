@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DnsClient;
@@ -22,8 +23,16 @@ public static class HappyEyeballsHttp
 
     private static readonly LookupClient DnsClient = new(new LookupClientOptions(NameServer.Cloudflare, NameServer.Cloudflare2, NameServer.GooglePublicDns, NameServer.GooglePublicDns2)
     {
-        UseCache = true
+        UseCache = true,
+        Timeout = TimeSpan.FromSeconds(5),
+        Retries = 5,
+        AutoResolveNameServers = true
     });
+
+    private static readonly HttpClient DohHttpClientCloudFlare = new()
+    {
+        BaseAddress = new Uri("https://1.1.1.1/dns-query")
+    };
 
 #if DEBUG
 
@@ -157,11 +166,28 @@ public static class HappyEyeballsHttp
         if (IPAddress.TryParse(endPoint.Host, out var ip))
             return [ip];
 
+        IPAddress[] ipAddresses = null;
+
         try
         {
             var result = await DnsClient.QueryAsync(endPoint.Host, QueryType.A, QueryClass.IN, cancel).ConfigureAwait(false);
 
-            return result.Answers.ARecords().Select(x => x.Address).ToArray();
+            ipAddresses = result.Answers.ARecords().Select(x => x.Address).ToArray();
+
+            if (ipAddresses.Length > 0)
+                return ipAddresses;
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Failed to resolve {endPoint.Host}", e);
+        }
+
+        try
+        {
+            var ips4 = await ResolveUsingDoH(endPoint.Host, "A", cancel);
+            var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA", cancel);
+            ipAddresses = ips4.Concat(ips6).ToArray();
+            return ipAddresses;
         }
         catch (Exception e)
         {
@@ -169,6 +195,38 @@ public static class HappyEyeballsHttp
         }
     }
 
+    private static async Task<IPAddress[]> ResolveUsingDoH(string host, string type, CancellationToken cancel)
+    {
+        try
+        {
+            // Create the request URL with query parameters (similar to the curl request)
+            var requestUrl = $"?name={host}&type={type}";
+
+            // Create the request to the DoH server
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/dns-json"));
+
+            // Send the request and get the response
+            var response = await DohHttpClientCloudFlare.SendAsync(request, cancel).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            // Parse the JSON result using the source generator
+            var jsonResponse = await response.Content.ReadAsStringAsync(cancel).ConfigureAwait(false);
+            var dnsResponse = JsonSerializer.Deserialize(jsonResponse, DnsResponseContext.Default.DnsResponse);
+
+            // Collect A and AAAA records
+            var ipAddresses = dnsResponse.Answers
+                .Where(answer => answer.Type == 1 || answer.Type == 28) // 1 for A records, 28 for AAAA records
+                .Select(answer => IPAddress.Parse(answer.Data))
+                .ToArray();
+
+            return ipAddresses;
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Failed to resolve {host} via DoH", e);
+        }
+    }
 
     private static IPAddress[] SortInterleaved(IPAddress[] addresses)
     {

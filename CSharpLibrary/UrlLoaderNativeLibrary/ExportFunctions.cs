@@ -80,8 +80,26 @@ public static unsafe class ExportFunctions
             LoaderManager.Instance.Initialize(WrapperSuccess, WrapperError, WrapperProgress, WrapperLog);
             result = 1;
         }
-        catch
+        catch (Exception e)
         {
+            try
+            {
+                _callbackLog = Marshal.GetDelegateForFunctionPointer<CallBackLogPointer>(pointerCallBackLog);
+
+                void WrapperLog(string message)
+                {
+                    IntPtr ptr = Marshal.StringToCoTaskMemAnsi(message);
+                    _callbackLog(ptr);
+                    Marshal.FreeCoTaskMem(ptr);
+                }
+
+                LogAll(e, WrapperLog);
+            }
+            catch
+            {
+                // ignored
+            }
+
             result = -2;
         }
 
@@ -115,5 +133,35 @@ public static unsafe class ExportFunctions
     public static void FreeId(IntPtr idPtr)
     {
         Marshal.FreeCoTaskMem(idPtr);
+    }
+
+    private static void LogAll(Exception exception, Action<string> callback)
+    {
+        if (exception == null)
+            return;
+
+        try
+        {
+            var logBuilder = new System.Text.StringBuilder();
+
+            // Log the main exception
+            logBuilder.AppendLine($"Exception: {exception.Message}");
+            logBuilder.AppendLine($"Stack Trace: {exception.StackTrace}");
+
+            var inner = exception.InnerException;
+            while (inner != null)
+            {
+                logBuilder.AppendLine($"Inner Exception: {inner.Message}");
+                logBuilder.AppendLine($"Inner Stack Trace: {inner.StackTrace}");
+                inner = inner.InnerException;
+            }
+
+            // Call _writeLog once with the complete log string
+            callback(logBuilder.ToString());
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
     }
 }
