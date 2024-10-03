@@ -25,8 +25,8 @@ public static class HappyEyeballsHttp
     private static readonly LookupClient DnsClient = new(new LookupClientOptions(NameServer.Cloudflare, NameServer.Cloudflare2, NameServer.GooglePublicDns, NameServer.GooglePublicDns2)
     {
         UseCache = true,
-        Timeout = TimeSpan.FromSeconds(5),
-        Retries = 5,
+        Timeout = TimeSpan.FromMilliseconds(150),
+        Retries = 1,
         AutoResolveNameServers = true,
         CacheFailedResults = false,
         ContinueOnDnsError = true
@@ -34,7 +34,8 @@ public static class HappyEyeballsHttp
 
     private static readonly HttpClient DohHttpClientCloudFlare = new()
     {
-        BaseAddress = new Uri("https://1.1.1.1/dns-query")
+        BaseAddress = new Uri("https://1.1.1.1/dns-query"),
+        Timeout = TimeSpan.FromMilliseconds(250),
     };
 
     private static readonly ConcurrentDictionary<string, IPAddress> _staticHosts = new();
@@ -125,7 +126,7 @@ public static class HappyEyeballsHttp
         // so... try it we will.
         var endPoint = context.DnsEndPoint;
 
-        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
 
         var resolvedAddresses = await GetIpsForHost(endPoint, linkedCts.Token).ConfigureAwait(false);
@@ -216,6 +217,7 @@ public static class HappyEyeballsHttp
         }
         catch (Exception)
         {
+            
             //ignore
             _log?.Invoke($"Failed to get IP addresses using doh: {endPoint.Host}");
         }
