@@ -14,6 +14,8 @@ extern "C" {
     // Force the use of the exact symbol names from the library
     int __cdecl initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
     char* __cdecl startLoad(const char* url, const char* method, const char* variables, const char* headers);
+    void __cdecl addStaticHost(const char* host, const char* ipAddress);
+    void __cdecl removeStaticHost(const char* host);
     void __cdecl freeId(const char* id);
 }
 

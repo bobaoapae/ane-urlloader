@@ -4,7 +4,7 @@ static UrlLoaderSupport* staticUrlSupport = new UrlLoaderSupport();
 static FREContext g_ctx;
 
 UrlLoaderSupport::UrlLoaderSupport()
-: _numFunctions(3)
+: _numFunctions(5)
 {
     _functions = new FRENamedFunction[_numFunctions];
     _functions[0].name = (const uint8_t*)"initialize";
@@ -13,6 +13,10 @@ UrlLoaderSupport::UrlLoaderSupport()
     _functions[1].function = UrlLoaderSupport::expose_loadUrl;
     _functions[2].name = (const uint8_t*)"getResult";
     _functions[2].function = UrlLoaderSupport::expose_getResult;
+    _functions[3].name = (const uint8_t*)"addStaticHost";
+    _functions[3].function = UrlLoaderSupport::expose_addStaticHost;
+    _functions[4].name = (const uint8_t*)"removeStaticHost";
+    _functions[4].function = UrlLoaderSupport::expose_removeStaticHost;
 }
 
 UrlLoaderSupport::~UrlLoaderSupport() {
@@ -154,6 +158,35 @@ FREObject UrlLoaderSupport::expose_initialize(FREContext ctx, void *functionData
     FREObject resultBool;
     FRENewObjectFromBool(result == 1, &resultBool);
     return resultBool;
+}
+
+FREObject UrlLoaderSupport::expose_addStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
+    writeLog("Calling expose_addStaticHost");
+
+    uint32_t stringLength;
+    const uint8_t *host;
+    FREGetObjectAsUTF8(argv[0], &stringLength, &host);
+    writeLog(("Host: " + std::string((const char *)host)).c_str());
+
+    uint32_t ipLength;
+    const uint8_t *ip;
+    FREGetObjectAsUTF8(argv[1], &ipLength, &ip);
+    writeLog(("IP: " + std::string((const char *)ip)).c_str());
+
+    addStaticHost((const char *)host, (const char *)ip);
+    return nullptr;
+}
+
+FREObject UrlLoaderSupport::expose_removeStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
+    writeLog("Calling expose_removeStaticHost");
+
+    uint32_t stringLength;
+    const uint8_t *host;
+    FREGetObjectAsUTF8(argv[0], &stringLength, &host);
+    writeLog(("Host: " + std::string((const char *)host)).c_str());
+
+    removeStaticHost((const char *)host);
+    return nullptr;
 }
 
 void UrlLoaderSupport::ContextInitializer(void *extData, const uint8_t *ctxType, FREContext ctx, uint32_t *numFunctionsToSet, const FRENamedFunction **functionsToSet) {

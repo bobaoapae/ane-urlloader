@@ -33,6 +33,8 @@ public:
     static FREObject expose_loadUrl(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]);
     static FREObject expose_getResult(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]);
     static FREObject expose_initialize(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]);
+    static FREObject expose_addStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]);
+    static FREObject expose_removeStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]);
 
     static void ContextInitializer(void *extData, const uint8_t *ctxType, FREContext ctx, uint32_t *numFunctionsToSet, const FRENamedFunction **functionsToSet);
     static void ContextFinalizer(FREContext ctx);
