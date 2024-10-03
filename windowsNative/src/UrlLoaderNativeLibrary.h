@@ -15,6 +15,8 @@ bool loadNativeLibrary();
 void *getFunctionPointer(const char *functionName);
 int initializerLoader(void* callBackSuccess, void* callBackError, void* callBackProgress, void* callBackLog);
 char *startLoader(const char *url, const char *method, const char *variables,  const char *headers);
+void addStaticHost(const char* host, const char* ipAddress);
+void removeStaticHost(const char* host);
 void freeId(const char *id);
 
 

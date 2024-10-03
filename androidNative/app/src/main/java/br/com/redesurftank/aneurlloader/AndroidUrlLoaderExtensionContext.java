@@ -1,9 +1,10 @@
 package br.com.redesurftank.aneurlloader;
 
+import android.os.Build;
 import android.util.JsonReader;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.adobe.fre.FREByteArray;
 import com.adobe.fre.FREContext;
@@ -29,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,6 +47,7 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
     private String tag;
     private OkHttpClient _client;
     private Map<UUID, byte[]> _byteBuffers;
+    private Map<String, String> _staticHosts;
 
     public AndroidUrlLoaderExtensionContext(String extensionName) {
         this.tag = extensionName + "." + CTX_NAME;
@@ -57,6 +62,8 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
         functionMap.put(Initialize.KEY, new Initialize());
         functionMap.put(LoadUrl.KEY, new LoadUrl());
         functionMap.put(GetResponse.KEY, new GetResponse());
+        functionMap.put(AddStaticHost.KEY, new AddStaticHost());
+        functionMap.put(RemoveStaticHost.KEY, new RemoveStaticHost());
         return functionMap;
     }
 
@@ -68,56 +75,48 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
     public static class Initialize implements FREFunction {
         public static final String KEY = "initialize";
         private static final String TAG = "AneUrlLoaderInitialize";
+        private static final ExecutorService executor = Executors.newCachedThreadPool();
+
 
         @Override
         public FREObject call(FREContext freContext, FREObject[] freObjects) {
             try {
-                AndroidWebSocketLogger.i(TAG, "Initializing");
+                AndroidWebSocketLogger.i(TAG, "Initializing okhttp client and setting dns resolver");
                 AndroidUrlLoaderExtensionContext context = (AndroidUrlLoaderExtensionContext) freContext;
+                context._staticHosts = new HashMap<>();
                 context._client = new OkHttpClient.Builder().fastFallback(true).dns(new Dns() {
                     @NonNull
                     @Override
                     public List<InetAddress> lookup(@NonNull String s) throws UnknownHostException {
                         List<InetAddress> addresses = new ArrayList<>();
-                        try {
-                            Log.d(TAG, "Resolving address using cloudflare DoH");
-                            DohResolver dohResolver = new DohResolver("https://1.1.1.1/dns-query");
-                            Record queryRecord = Record.newRecord(Name.fromString(s + "."), Type.A, DClass.IN);
-                            Message queryMessage = Message.newQuery(queryRecord);
-                            Message result = dohResolver.send(queryMessage);
-                            List<Record> answers = result.getSection(Section.ANSWER);
-                            for (Record record : answers) {
-                                if (record.getType() == Type.A || record.getType() == Type.AAAA) {
-                                    addresses.add(InetAddress.getByName(record.rdataToString()));
-                                }
-                            }
 
+                        try {
+                            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                                addresses.addAll(resolveDnsUsingThreadForLowApi(s));
+                            } else {
+                                List<InetAddress> fromResolversResult = resolveWithDns(s).join();
+                                addresses.addAll(fromResolversResult);
+                            }
                         } catch (Exception e) {
-                            AndroidWebSocketLogger.e(TAG, "Failure in resolve() method using doh cloudflare: " + e.getMessage(), e);
+                            AndroidWebSocketLogger.e(TAG, "Error in lookup() : " + e.getMessage(), e);
                         }
 
                         if (!addresses.isEmpty()) {
                             return addresses;
                         }
 
-                        try {
-                            Log.d(TAG, "Resolving address using cloudflare dns normal udp");
-                            Resolver resolver = new SimpleResolver(InetAddress.getByName("1.1.1.1"));
-                            Record queryRecord = Record.newRecord(Name.fromString(s + "."), Type.A, DClass.IN);
-                            Message queryMessage = Message.newQuery(queryRecord);
-                            Message result = resolver.send(queryMessage);
-                            List<Record> answers = result.getSection(Section.ANSWER);
-                            for (Record record : answers) {
-                                if (record.getType() == Type.A || record.getType() == Type.AAAA) {
-                                    addresses.add(InetAddress.getByName(record.rdataToString()));
+                        synchronized (context._staticHosts) {
+                            try {
+                                String ip = context._staticHosts.get(s);
+                                if (ip != null) {
+                                    addresses.add(InetAddress.getByName(ip));
                                 }
+                                if (!addresses.isEmpty()) {
+                                    return addresses;
+                                }
+                            } catch (UnknownHostException e) {
+                                AndroidWebSocketLogger.e(TAG, "Error in lookup() : " + e.getMessage(), e);
                             }
-                        } catch (Exception e) {
-                            AndroidWebSocketLogger.e(TAG, "Failure in resolve() method using udp cloudflare: " + e.getMessage(), e);
-                        }
-
-                        if (!addresses.isEmpty()) {
-                            return addresses;
                         }
 
                         addresses.addAll(Dns.SYSTEM.lookup(s));
@@ -130,6 +129,179 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                 AndroidWebSocketLogger.e(TAG, "Error initializing", e);
             }
             return null;
+        }
+
+        private InetAddress getByIpWithoutException(String ip) {
+            try {
+                return InetAddress.getByName(ip);
+            } catch (UnknownHostException e) {
+                AndroidWebSocketLogger.e(TAG, "Failure in getByIpWithoutException() : " + e.getMessage(), e);
+                return null;
+            }
+        }
+
+        private List<InetAddress> resolveDnsUsingThreadForLowApi(String domain) {
+            AndroidWebSocketLogger.i(TAG, "resolveDnsUsingThreadForLowApi() called with: domain = [" + domain + "]");
+            List<InetAddress> addresses = new ArrayList<>();
+            Thread cloudflareThread = new Thread(() -> {
+                try {
+                    List<InetAddress> cloudflareAddresses = resolveDns(new DohResolver("https://1.1.1.1/dns-query"), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with cloudflare");
+                        addresses.addAll(cloudflareAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+            Thread googleThread = new Thread(() -> {
+                try {
+                    List<InetAddress> googleAddresses = resolveDns(new DohResolver("https://dns.google/dns-query"), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with google");
+                        addresses.addAll(googleAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+            Thread adguardThread = new Thread(() -> {
+                try {
+                    List<InetAddress> adguardAddresses = resolveDns(new DohResolver("https://unfiltered.adguard-dns.com/dns-query"), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with adguard");
+                        addresses.addAll(adguardAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+            Thread cloudflareNormalThread = new Thread(() -> {
+                try {
+                    List<InetAddress> adguardAddresses = resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("1.1.1.1"))), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with cloudflare normal");
+                        addresses.addAll(adguardAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+            Thread googleNormalThread = new Thread(() -> {
+                try {
+                    List<InetAddress> adguardAddresses = resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("8.8.8.8"))), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with google normal");
+                        addresses.addAll(adguardAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+            Thread adGuardNormalThread = new Thread(() -> {
+                try {
+                    List<InetAddress> adguardAddresses = resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("94.140.14.140"))), domain);
+                    synchronized (addresses) {
+                        if (!addresses.isEmpty())
+                            return;
+                        AndroidWebSocketLogger.d(TAG, "resolveDnsUsingThreadForLowApi() resolved with adguard normal");
+                        addresses.addAll(adguardAddresses);
+                    }
+                } catch (Exception e) {
+                    AndroidWebSocketLogger.e(TAG, "Failure in resolveDnsUsingThreadForLowApi() : " + e.getMessage(), e);
+                }
+            });
+
+            cloudflareThread.start();
+            googleThread.start();
+            adguardThread.start();
+            cloudflareNormalThread.start();
+            googleNormalThread.start();
+            adGuardNormalThread.start();
+
+            while (true) {
+                synchronized (addresses) {
+                    if (!addresses.isEmpty()) {
+                        break;
+                    }
+                }
+                //check if all threads are done
+                if (!cloudflareThread.isAlive() && !googleThread.isAlive() && !adguardThread.isAlive() && !cloudflareNormalThread.isAlive() && !googleNormalThread.isAlive() && !adGuardNormalThread.isAlive()) {
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return addresses;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private CompletableFuture<List<InetAddress>> resolveWithDns(String domain) {
+            AndroidWebSocketLogger.i(TAG, "resolveWithDns() called with: domain = [" + domain + "]");
+            CompletableFuture<List<InetAddress>> cloudflareFuture = CompletableFuture.supplyAsync(() -> resolveDns(new DohResolver("https://1.1.1.1/dns-query"), domain), executor);
+            CompletableFuture<List<InetAddress>> googleFuture = CompletableFuture.supplyAsync(() -> resolveDns(new DohResolver("https://dns.google/dns-query"), domain), executor);
+            CompletableFuture<List<InetAddress>> adguardFuture = CompletableFuture.supplyAsync(() -> resolveDns(new DohResolver("https://unfiltered.adguard-dns.com/dns-query"), domain), executor);
+            CompletableFuture<List<InetAddress>> cloudflareNormalFuture = CompletableFuture.supplyAsync(() -> resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("1.1.1.1"))), domain), executor);
+            CompletableFuture<List<InetAddress>> googleNormalFuture = CompletableFuture.supplyAsync(() -> resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("8.8.8.8"))), domain), executor);
+            CompletableFuture<List<InetAddress>> adguardNormalFuture = CompletableFuture.supplyAsync(() -> resolveDns(new SimpleResolver(Objects.requireNonNull(getByIpWithoutException("94.140.14.140"))), domain), executor);
+
+            return CompletableFuture.anyOf(cloudflareFuture, googleFuture, adguardFuture, cloudflareNormalFuture, googleNormalFuture, adguardNormalFuture)
+                    .thenApply(o -> {
+                        if (cloudflareFuture.isDone() && !cloudflareFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with cloudflare");
+                            return cloudflareFuture.join();
+                        } else if (googleFuture.isDone() && !googleFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with google");
+                            return googleFuture.join();
+                        } else if (adguardFuture.isDone() && !adguardFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with adguard");
+                            return adguardFuture.join();
+                        } else if (cloudflareNormalFuture.isDone() && !cloudflareNormalFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with cloudflare normal");
+                            return cloudflareNormalFuture.join();
+                        } else if (googleNormalFuture.isDone() && !googleNormalFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with google normal");
+                            return googleNormalFuture.join();
+                        } else if (adguardNormalFuture.isDone() && !adguardNormalFuture.isCompletedExceptionally()) {
+                            AndroidWebSocketLogger.d(TAG, "resolveWithDns() resolved with adguard normal");
+                            return adguardNormalFuture.join();
+                        }
+
+                        return new ArrayList<>();
+                    });
+        }
+
+        private List<InetAddress> resolveDns(Resolver resolver, String domain) {
+            try {
+                Record queryRecord = Record.newRecord(Name.fromString(domain + "."), Type.A, DClass.IN);
+                Message queryMessage = Message.newQuery(queryRecord);
+                Message result = resolver.send(queryMessage);
+                List<Record> answers = result.getSection(Section.ANSWER);
+                List<InetAddress> addresses = new ArrayList<>();
+                for (Record record : answers) {
+                    if (record.getType() == Type.A || record.getType() == Type.AAAA) {
+                        addresses.add(InetAddress.getByName(record.rdataToString()));
+                    }
+                }
+                return addresses;
+            } catch (Exception e) {
+                AndroidWebSocketLogger.d(TAG, "Failure in resolveDns() : " + e.getMessage(), e);
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -260,6 +432,57 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                 }
             } catch (Exception e) {
                 AndroidWebSocketLogger.e(TAG, "Error getting result", e);
+            }
+
+            return null;
+        }
+    }
+
+    public static class AddStaticHost implements FREFunction {
+        public static final String KEY = "addStaticHost";
+        private static final String TAG = "AndroidUrlLoaderAddStaticHost";
+
+        @Override
+        public FREObject call(FREContext freContext, FREObject[] freObjects) {
+            try {
+                AndroidWebSocketLogger.i(TAG, "Adding static host");
+                AndroidUrlLoaderExtensionContext context = (AndroidUrlLoaderExtensionContext) freContext;
+
+                String host = freObjects[0].getAsString();
+                String ip = freObjects[1].getAsString();
+
+                synchronized (context._staticHosts) {
+                    context._staticHosts.put(host, ip);
+                }
+
+                return FREObject.newObject(true);
+            } catch (Exception e) {
+                AndroidWebSocketLogger.e(TAG, "Error adding static host", e);
+            }
+
+            return null;
+        }
+    }
+
+    public static class RemoveStaticHost implements FREFunction {
+        public static final String KEY = "removeStaticHost";
+        private static final String TAG = "AndroidUrlLoaderRemoveStaticHost";
+
+        @Override
+        public FREObject call(FREContext freContext, FREObject[] freObjects) {
+            try {
+                AndroidWebSocketLogger.i(TAG, "Removing static host");
+                AndroidUrlLoaderExtensionContext context = (AndroidUrlLoaderExtensionContext) freContext;
+
+                String host = freObjects[0].getAsString();
+
+                synchronized (context._staticHosts) {
+                    context._staticHosts.remove(host);
+                }
+
+                return FREObject.newObject(true);
+            } catch (Exception e) {
+                AndroidWebSocketLogger.e(TAG, "Error removing static host", e);
             }
 
             return null;

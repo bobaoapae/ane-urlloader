@@ -49,6 +49,14 @@ public class AneUrlLoader {
         return result;
     }
 
+    public function addStaticHost(host:String, ip:String):void {
+        _extContext.call("addStaticHost", host, ip);
+    }
+
+    public function removeStaticHost(host:String):void {
+        _extContext.call("removeStaticHost", host);
+    }
+
     public function loadUrl(url:String, method:String = "GET", variables:Object = null, headers:Object = null, onResult:Function = null, onError:Function = null, onProgress:Function = null):void {
         if (headers is Dictionary) {
             var headersDict:Dictionary = headers as Dictionary;

@@ -179,11 +179,50 @@ FREObject expose_initialize(FREContext ctx, void *functionData, uint32_t argc, F
     return resultBool;
 }
 
+FREObject expose_addStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
+    writeLog("Calling expose_addStaticHost");
+
+    uint32_t hostLength;
+    const uint8_t *host;
+    FREGetObjectAsUTF8(argv[0], &hostLength, &host);
+
+    writeLog("Host: ");
+    writeLog((const char *) host);
+
+    uint32_t ipAddressLength;
+    const uint8_t *ipAddress;
+    FREGetObjectAsUTF8(argv[1], &ipAddressLength, &ipAddress);
+
+    writeLog("IP Address: ");
+    writeLog((const char *) ipAddress);
+
+    addStaticHost((const char *) host, (const char *) ipAddress);
+
+    return nullptr;
+}
+
+FREObject expose_removeStaticHost(FREContext ctx, void *functionData, uint32_t argc, FREObject argv[]) {
+    writeLog("Calling expose_removeStaticHost");
+
+    uint32_t hostLength;
+    const uint8_t *host;
+    FREGetObjectAsUTF8(argv[0], &hostLength, &host);
+
+    writeLog("Host: ");
+    writeLog((const char *) host);
+
+    removeStaticHost((const char *) host);
+
+    return nullptr;
+}
+
 void ContextInitializer(void *extData, const uint8_t *ctxType, FREContext ctx, uint32_t *numFunctionsToSet, const FRENamedFunction **functionsToSet) {
     static FRENamedFunction arrFunctions[] = {
         {(const uint8_t *) "initialize", NULL, &expose_initialize},
         {(const uint8_t *) "loadUrl", NULL, &expose_loadUrl},
         {(const uint8_t *) "getResult", NULL, &expose_getResult},
+        {(const uint8_t *) "addStaticHost", NULL, &expose_addStaticHost},
+        {(const uint8_t *) "removeStaticHost", NULL, &expose_removeStaticHost},
     };
 
     g_ctx = ctx;

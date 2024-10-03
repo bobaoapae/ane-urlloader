@@ -16,6 +16,12 @@ public class AndroidWebSocketLogger {
         }
     }
 
+    public static void d(String tag, String msg, Throwable throwable) {
+        if (g_enableReleaseLogging) {
+            Log.d(tag, msg, throwable);
+        }
+    }
+
     public static void e(String tag, String msg) {
         Log.e(tag, msg);
         SentryEvent event = new SentryEvent();

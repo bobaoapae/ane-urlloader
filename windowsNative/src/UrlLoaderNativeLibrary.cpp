@@ -109,6 +109,34 @@ char* startLoader(const char* url, const char* method, const char* variables, co
     return result;
 }
 
+void addStaticHost(const char* host, const char* ipAddress) {
+    writeLog("Calling addStaticHost");
+
+    using AddStaticHostFunc = void (__cdecl *)(const char*, const char*);
+    auto func = reinterpret_cast<AddStaticHostFunc>(getFunctionPointer("addStaticHost"));
+
+    if (func) {
+        func(host, ipAddress);
+        writeLog("addStaticHost finished");
+    } else {
+        writeLog("Could not load function addStaticHost");
+    }
+}
+
+void removeStaticHost(const char* host) {
+    writeLog("Calling removeStaticHost");
+
+    using RemoveStaticHostFunc = void (__cdecl *)(const char*);
+    auto func = reinterpret_cast<RemoveStaticHostFunc>(getFunctionPointer("removeStaticHost"));
+
+    if (func) {
+        func(host);
+        writeLog("removeStaticHost finished");
+    } else {
+        writeLog("Could not load function removeStaticHost");
+    }
+}
+
 void freeId(const char* id) {
     writeLog("Calling freeId");
 
