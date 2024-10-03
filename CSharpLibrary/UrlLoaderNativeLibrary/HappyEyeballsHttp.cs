@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,13 +27,30 @@ public static class HappyEyeballsHttp
         UseCache = true,
         Timeout = TimeSpan.FromSeconds(5),
         Retries = 5,
-        AutoResolveNameServers = true
+        AutoResolveNameServers = true,
+        CacheFailedResults = false,
+        ContinueOnDnsError = true
     });
 
     private static readonly HttpClient DohHttpClientCloudFlare = new()
     {
         BaseAddress = new Uri("https://1.1.1.1/dns-query")
     };
+
+    private static readonly ConcurrentDictionary<string, IPAddress> _staticHosts = new();
+
+    public static void AddStaticHost(string host, string ip)
+    {
+        if (IPAddress.TryParse(ip, out var parsedIp))
+            _staticHosts[host] = parsedIp;
+    }
+
+    public static void RemoveStaticHost(string host)
+    {
+        _staticHosts.TryRemove(host, out _);
+    }
+
+    private static Action<string> _log = Console.WriteLine;
 
 #if DEBUG
 
@@ -57,8 +75,13 @@ public static class HappyEyeballsHttp
     // * Look I wanted to keep this simple OK?
     //   We don't do any fancy shit like statefulness or incremental sorting
     //   or incremental DNS updates who cares about that.
-    public static HttpClient CreateHttpClient(bool autoRedirect = true)
+    public static HttpClient CreateHttpClient(bool autoRedirect = true, Action<string> logAction = null)
     {
+        if (logAction != null)
+        {
+            _log = logAction;
+        }
+
         var sslOptions = new SslClientAuthenticationOptions
         {
             // Leave certs unvalidated for debugging
@@ -180,6 +203,7 @@ public static class HappyEyeballsHttp
         catch (Exception)
         {
             //ignore
+            _log?.Invoke($"Failed to get IP addresses using dns client: {endPoint.Host}");
         }
 
         try
@@ -187,12 +211,22 @@ public static class HappyEyeballsHttp
             var ips4 = await ResolveUsingDoH(endPoint.Host, "A");
             var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA");
             ipAddresses = ips4.Concat(ips6).ToArray();
-            return ipAddresses;
+            if (ipAddresses.Length > 0)
+                return ipAddresses;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            throw new Exception($"Failed to resolve {endPoint.Host}", e);
+            //ignore
+            _log?.Invoke($"Failed to get IP addresses using doh: {endPoint.Host}");
         }
+
+        if (_staticHosts.TryGetValue(endPoint.Host, out var staticIp))
+        {
+            _log?.Invoke($"Found static host: {endPoint.Host}");
+            return [staticIp];
+        }
+
+        throw new Exception($"Failed to resolve {endPoint.Host} via DNS or DoH");
     }
 
     private static async Task<IPAddress[]> ResolveUsingDoH(string host, string type)
@@ -214,6 +248,9 @@ public static class HappyEyeballsHttp
             var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var dnsResponse = JsonSerializer.Deserialize(jsonResponse, DnsResponseContext.Default.DnsResponse);
 
+            if (dnsResponse.Answers == null)
+                return [];
+
             var ipAddresses = dnsResponse.Answers
                 .Where(answer => answer.Type == 1 || answer.Type == 28) // 1 for A records, 28 for AAAA records
                 .Select(answer =>
@@ -231,10 +268,9 @@ public static class HappyEyeballsHttp
 
             return ipAddresses;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine(e);
-            throw new Exception($"Failed to resolve {host} via DoH", e);
+            return [];
         }
     }
 

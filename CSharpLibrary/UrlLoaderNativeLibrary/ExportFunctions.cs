@@ -105,6 +105,37 @@ public static unsafe class ExportFunctions
 
         return result;
     }
+    
+    [UnmanagedCallersOnly(EntryPoint = "addStaticHost", CallConvs = [typeof(CallConvCdecl)])]
+    public static void AddStaticHost(IntPtr hostPtr, IntPtr ipPtr)
+    {
+        try
+        {
+            var host = Marshal.PtrToStringAnsi(hostPtr);
+            var ip = Marshal.PtrToStringAnsi(ipPtr);
+
+            LoaderManager.Instance.AddStaticHost(host, ip);
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+    
+    [UnmanagedCallersOnly(EntryPoint = "removeStaticHost", CallConvs = [typeof(CallConvCdecl)])]
+    public static void RemoveStaticHost(IntPtr hostPtr)
+    {
+        try
+        {
+            var host = Marshal.PtrToStringAnsi(hostPtr);
+
+            LoaderManager.Instance.RemoveStaticHost(host);
+        }
+        catch
+        {
+            // ignored
+        }
+    }
 
     [UnmanagedCallersOnly(EntryPoint = "startLoad", CallConvs = [typeof(CallConvCdecl)])]
     public static IntPtr StartLoad(IntPtr urlPtr, IntPtr methodPtr, IntPtr variablesPtr, IntPtr headersPtr)

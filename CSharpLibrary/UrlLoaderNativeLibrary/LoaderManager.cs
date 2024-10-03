@@ -29,7 +29,7 @@ public class LoaderManager
         _error = error;
         _progress = progress;
         _writeLog = writeLog;
-        _client = HappyEyeballsHttp.CreateHttpClient();
+        _client = HappyEyeballsHttp.CreateHttpClient(true, _writeLog);
     }
 
     public string StartLoad(string url, string method, Dictionary<string, string> variables, Dictionary<string, string> headers)
@@ -175,5 +175,15 @@ public class LoaderManager
         {
             // ignored
         }
+    }
+
+    public void AddStaticHost(string host, string ip)
+    {
+        HappyEyeballsHttp.AddStaticHost(host, ip);
+    }
+
+    public void RemoveStaticHost(string host)
+    {
+        HappyEyeballsHttp.RemoveStaticHost(host);
     }
 }
