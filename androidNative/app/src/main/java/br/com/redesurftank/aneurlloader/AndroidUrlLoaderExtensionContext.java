@@ -47,7 +47,7 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
     private String tag;
     private OkHttpClient _client;
     private Map<UUID, byte[]> _byteBuffers;
-    private Map<String, String> _staticHosts;
+    private Map<String, List<String>> _staticHosts;
 
     public AndroidUrlLoaderExtensionContext(String extensionName) {
         this.tag = extensionName + "." + CTX_NAME;
@@ -91,7 +91,7 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                         List<InetAddress> addresses = new ArrayList<>();
 
                         try {
-                            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                                 addresses.addAll(resolveDnsUsingThreadForLowApi(s));
                             } else {
                                 List<InetAddress> fromResolversResult = resolveWithDns(s).join();
@@ -107,12 +107,14 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
 
                         synchronized (context._staticHosts) {
                             try {
-                                String ip = context._staticHosts.get(s);
-                                if (ip != null) {
-                                    addresses.add(InetAddress.getByName(ip));
-                                }
-                                if (!addresses.isEmpty()) {
-                                    return addresses;
+                                if (context._staticHosts.containsKey(s)) {
+                                    List<String> ips = context._staticHosts.get(s);
+                                    for (String ip : ips) {
+                                        addresses.add(InetAddress.getByName(ip));
+                                    }
+                                    if (!addresses.isEmpty()) {
+                                        return addresses;
+                                    }
                                 }
                             } catch (UnknownHostException e) {
                                 AndroidWebSocketLogger.e(TAG, "Error in lookup() : " + e.getMessage(), e);
@@ -452,7 +454,10 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                 String ip = freObjects[1].getAsString();
 
                 synchronized (context._staticHosts) {
-                    context._staticHosts.put(host, ip);
+                    if (!context._staticHosts.containsKey(host)) {
+                        context._staticHosts.put(host, new ArrayList<>());
+                    }
+                    context._staticHosts.get(host).add(ip);
                 }
 
                 return FREObject.newObject(true);
