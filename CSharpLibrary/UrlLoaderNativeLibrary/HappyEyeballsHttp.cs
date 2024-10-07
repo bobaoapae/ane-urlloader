@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text.Json;
@@ -38,17 +38,31 @@ public static class HappyEyeballsHttp
         Timeout = TimeSpan.FromMilliseconds(250),
     };
 
-    private static readonly ConcurrentDictionary<string, IPAddress> _staticHosts = new();
+    private static readonly Dictionary<string, List<IPAddress>> _staticHosts = new();
 
     public static void AddStaticHost(string host, string ip)
     {
-        if (IPAddress.TryParse(ip, out var parsedIp))
-            _staticHosts[host] = parsedIp;
+        if (!IPAddress.TryParse(ip, out var parsedIp))
+        {
+            _log?.Invoke($"Failed to parse IP from {ip}");
+            return;
+        }
+
+        lock (_staticHosts)
+        {
+            if (!_staticHosts.ContainsKey(host))
+                _staticHosts[host] = new List<IPAddress>();
+            
+            _staticHosts[host].Add(parsedIp);
+        }
     }
 
     public static void RemoveStaticHost(string host)
     {
-        _staticHosts.TryRemove(host, out _);
+        lock (_staticHosts)
+        {
+            _staticHosts.Remove(host);
+        }
     }
 
     private static Action<string> _log = Console.WriteLine;
@@ -222,13 +236,14 @@ public static class HappyEyeballsHttp
             _log?.Invoke($"Failed to get IP addresses using doh: {endPoint.Host}");
         }
 
-        if (_staticHosts.TryGetValue(endPoint.Host, out var staticIp))
+        lock (_staticHosts)
         {
+            if (!_staticHosts.TryGetValue(endPoint.Host, out var staticIp)) 
+                throw new Exception($"Failed to resolve {endPoint.Host} via DNS or DoH");
+            
             _log?.Invoke($"Found static host: {endPoint.Host}");
-            return [staticIp];
+            return staticIp.ToArray();
         }
-
-        throw new Exception($"Failed to resolve {endPoint.Host} via DNS or DoH");
     }
 
     private static async Task<IPAddress[]> ResolveUsingDoH(string host, string type)
@@ -240,7 +255,7 @@ public static class HappyEyeballsHttp
 
             // Create the request to the DoH server
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/dns-json"));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/dns-json"));
 
             // Send the request and get the response
             var response = await DohHttpClientCloudFlare.SendAsync(request).ConfigureAwait(false);
