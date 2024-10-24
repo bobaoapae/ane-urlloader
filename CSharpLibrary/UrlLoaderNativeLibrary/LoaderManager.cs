@@ -20,7 +20,7 @@ public class LoaderManager
     private Action<string, string> _error;
     private Action<string, string> _progress;
     private Action<string> _writeLog;
-    private HttpClient _client;
+    private HttpClient[] _clients;
 
     public void Initialize(Action<string, byte[]> success, Action<string, string> error, Action<string, string> progress, Action<string> writeLog)
     {
@@ -29,7 +29,15 @@ public class LoaderManager
         _error = error;
         _progress = progress;
         _writeLog = writeLog;
-        _client = HappyEyeballsHttp.CreateHttpClient(true, _writeLog);
+        _clients =
+        [
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog),
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog),
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog),
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog),
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog),
+            HappyEyeballsHttp.CreateHttpClient(true, _writeLog)
+        ];
     }
 
     public string StartLoad(string url, string method, Dictionary<string, string> variables, Dictionary<string, string> headers)
@@ -66,7 +74,7 @@ public class LoaderManager
                     request.Content = new FormUrlEncodedContent(variables);
                 }
 
-                var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                var response = await _clients[Random.Shared.Next(0, _clients.Length - 1)].SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 if (response.StatusCode >= HttpStatusCode.BadRequest)
                 {
                     _ = Task.Run(() =>

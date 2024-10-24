@@ -25,7 +25,7 @@ public static class HappyEyeballsHttp
     private static readonly LookupClient DnsClient = new(new LookupClientOptions(NameServer.Cloudflare, NameServer.Cloudflare2, NameServer.GooglePublicDns, NameServer.GooglePublicDns2)
     {
         UseCache = true,
-        Timeout = TimeSpan.FromMilliseconds(150),
+        Timeout = TimeSpan.FromMilliseconds(250),
         Retries = 1,
         AutoResolveNameServers = true,
         CacheFailedResults = false,
@@ -35,10 +35,11 @@ public static class HappyEyeballsHttp
     private static readonly HttpClient DohHttpClientCloudFlare = new()
     {
         BaseAddress = new Uri("https://1.1.1.1/dns-query"),
-        Timeout = TimeSpan.FromMilliseconds(250),
+        Timeout = TimeSpan.FromSeconds(2),
     };
 
     private static readonly Dictionary<string, List<IPAddress>> _staticHosts = new();
+    private static readonly Dictionary<string, List<IPAddress>> _resolvedHosts = new();
 
     public static void AddStaticHost(string host, string ip)
     {
@@ -204,7 +205,35 @@ public static class HappyEyeballsHttp
         if (IPAddress.TryParse(endPoint.Host, out var ip))
             return [ip];
 
-        IPAddress[] ipAddresses = null;
+        IPAddress[] ipAddresses;
+        
+        lock (_resolvedHosts)
+        {
+            if (_resolvedHosts.TryGetValue(endPoint.Host, out var resolvedHost) && resolvedHost.Count > 0)
+            {
+                return resolvedHost.ToArray();
+            }
+        }
+        
+        try
+        {
+            var ips4 = await ResolveUsingDoH(endPoint.Host, "A");
+            var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA");
+            ipAddresses = ips4.Concat(ips6).ToArray();
+            if (ipAddresses.Length > 0)
+            {
+                lock (_resolvedHosts)
+                {
+                    _resolvedHosts.Add(endPoint.Host, ipAddresses.ToList());
+                }
+                return ipAddresses;
+            }
+        }
+        catch (Exception)
+        {
+            //ignore
+            _log?.Invoke($"Failed to get IP addresses using doh: {endPoint.Host}");
+        }
 
         try
         {
@@ -213,27 +242,18 @@ public static class HappyEyeballsHttp
             ipAddresses = result.Answers.ARecords().Select(x => x.Address).ToArray();
 
             if (ipAddresses.Length > 0)
+            {
+                lock (_resolvedHosts)
+                {
+                    _resolvedHosts.Add(endPoint.Host, ipAddresses.ToList());
+                }
                 return ipAddresses;
+            }
         }
         catch (Exception)
         {
             //ignore
             _log?.Invoke($"Failed to get IP addresses using dns client: {endPoint.Host}");
-        }
-
-        try
-        {
-            var ips4 = await ResolveUsingDoH(endPoint.Host, "A");
-            var ips6 = await ResolveUsingDoH(endPoint.Host, "AAAA");
-            ipAddresses = ips4.Concat(ips6).ToArray();
-            if (ipAddresses.Length > 0)
-                return ipAddresses;
-        }
-        catch (Exception)
-        {
-            
-            //ignore
-            _log?.Invoke($"Failed to get IP addresses using doh: {endPoint.Host}");
         }
 
         lock (_staticHosts)
@@ -293,27 +313,31 @@ public static class HappyEyeballsHttp
 
     private static IPAddress[] SortInterleaved(IPAddress[] addresses)
     {
-        // Interleave returned addresses so that they are IPv6 -> IPv4 -> IPv6 -> IPv4.
-        // Assuming we have multiple addresses of the same type that is.
-        // As described in the RFC.
+        // Sort IPv6 and IPv4 addresses using a custom byte comparison.
+        var ipv6 = addresses.Where(x => x.AddressFamily == AddressFamily.InterNetworkV6)
+            .OrderBy(x => x, new IPAddressComparer())
+            .ToArray();
+        var ipv4 = addresses.Where(x => x.AddressFamily == AddressFamily.InterNetwork)
+            .OrderBy(x => x, new IPAddressComparer())
+            .ToArray();
 
-        var ipv6 = addresses.Where(x => x.AddressFamily == AddressFamily.InterNetworkV6).ToArray();
-        var ipv4 = addresses.Where(x => x.AddressFamily == AddressFamily.InterNetwork).ToArray();
-
+        // Determine the common length between IPv6 and IPv4
         var commonLength = Math.Min(ipv6.Length, ipv4.Length);
-
         var result = new IPAddress[addresses.Length];
+
+        // Interleave the IPv6 and IPv4 addresses
         for (var i = 0; i < commonLength; i++)
         {
             result[i * 2] = ipv6[i];
-            result[1 + i * 2] = ipv4[i];
+            result[i * 2 + 1] = ipv4[i];
         }
 
-        if (ipv4.Length > ipv6.Length)
+        // Add remaining addresses if there are any left (either IPv6 or IPv4)
+        if (ipv6.Length > ipv4.Length)
         {
-            ipv4.AsSpan(commonLength).CopyTo(result.AsSpan(commonLength * 2));
+            ipv6.AsSpan(commonLength).CopyTo(result.AsSpan(commonLength * 2));
         }
-        else if (ipv6.Length > ipv4.Length)
+        else if (ipv4.Length > ipv6.Length)
         {
             ipv4.AsSpan(commonLength).CopyTo(result.AsSpan(commonLength * 2));
         }
