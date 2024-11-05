@@ -48,6 +48,7 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
     private OkHttpClient _client;
     private Map<UUID, byte[]> _byteBuffers;
     private Map<String, List<String>> _staticHosts;
+    private Map<String, List<InetAddress>> _resolvedHosts;
 
     public AndroidUrlLoaderExtensionContext(String extensionName) {
         this.tag = extensionName + "." + CTX_NAME;
@@ -84,11 +85,22 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                 AndroidWebSocketLogger.i(TAG, "Initializing okhttp client and setting dns resolver");
                 AndroidUrlLoaderExtensionContext context = (AndroidUrlLoaderExtensionContext) freContext;
                 context._staticHosts = new HashMap<>();
+                context._resolvedHosts = new HashMap<>();
                 context._client = new OkHttpClient.Builder().fastFallback(true).dns(new Dns() {
                     @NonNull
                     @Override
                     public List<InetAddress> lookup(@NonNull String s) throws UnknownHostException {
                         List<InetAddress> addresses = new ArrayList<>();
+
+                        synchronized (context._resolvedHosts) {
+                            if (context._resolvedHosts.containsKey(s)) {
+                                List<InetAddress> ips = context._resolvedHosts.get(s);
+                                addresses.addAll(ips);
+                                if (!addresses.isEmpty()) {
+                                    return addresses;
+                                }
+                            }
+                        }
 
                         try {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -102,6 +114,12 @@ public class AndroidUrlLoaderExtensionContext extends FREContext {
                         }
 
                         if (!addresses.isEmpty()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                addresses.sort(new InetAddressComparator());
+                            }
+                            synchronized (context._resolvedHosts) {
+                                context._resolvedHosts.put(s, addresses);
+                            }
                             return addresses;
                         }
 
