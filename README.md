@@ -1,5 +1,7 @@
 # AneUrlLoader
 
+**WARNING:** Due to Apple's limitations on dynamic libraries for the App Store, this extension is deprecated in favor of [ANE Awesome Utils](https://github.com/bobaoapae/ane-awesome-utils). The new extension provides URL loading capabilities and additional features like WebSocket support and unique device ID retrieval for authentication.
+
 **Extension ID:** `br.com.redesurftank.aneurlloader`
 
 AneUrlLoader is an Adobe AIR Native Extension (ANE) compatible with Windows 32-bit, Android, and macOS platforms. It provides a straightforward way to load URLs with various HTTP methods, custom headers, or parameters.
